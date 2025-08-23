@@ -2,6 +2,7 @@
 
 ## Planned Tasks
 
+- [x] Complete Figma design UI
 - [ ] Set up project repositories and initialize MERN stack
 - [ ] Design database schema for users, employees, departments, attendance, and leave
 - [ ] Implement user authentication and role-based authorization
@@ -14,7 +15,7 @@
 
 ## Pending Tasks
 
-- [ ] Finalize UI/UX design for dashboards and forms
+- [x] Finalize UI/UX design for dashboards and forms
 - [ ] Implement notification system for leave requests and approvals
 - [ ] Add advanced reporting and analytics features
 - [ ] Optimize performance and scalability
