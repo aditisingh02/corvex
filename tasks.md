@@ -3,6 +3,7 @@
 ## Planned Tasks
 
 - [x] Complete Figma design UI
+- [x] Create landing page
 - [ ] Set up project repositories and initialize MERN stack
 - [ ] Design database schema for users, employees, departments, attendance, and leave
 - [ ] Implement user authentication and role-based authorization
