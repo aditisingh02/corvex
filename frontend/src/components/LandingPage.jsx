@@ -1,5 +1,6 @@
 import { Button } from "./ui/button";
 import { useState } from "react";
+import Footer from "./Footer";
 import heroIllustration from "../assets/hero-illustration.svg";
 import servicesIllus1 from "../assets/services-illus-1.svg";
 import servicesIllus2 from "../assets/services-illus-2.svg";
@@ -22,45 +23,44 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-white font-['Space_Grotesk']">
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex justify-start lg:w-0 lg:flex-1">
-              <span className="text-2xl font-bold text-[#5E17EB]">Corvex</span>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <a
-                href="#about"
-                className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
-              >
-                About us
-              </a>
-              <a
-                href="#services"
-                className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
-              >
-                Services
-              </a>
-              <a
-                href="#use-cases"
-                className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
-              >
-                Use Cases
-              </a>
-              <a
-                href="#blog"
-                className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
-              >
-                Blog
-              </a>
-            </nav>
-            <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
-              <Button
-                variant="outline"
-                className="mr-3 px-6 py-2 rounded-full border-[#5E17EB] text-[#5E17EB] hover:bg-[#5E17EB] hover:text-white transition-colors"
-              >
-                Login
-              </Button>
+      <header className="p-4 sm:p-6 lg:p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-3xl px-6 py-3">
+            <div className="flex justify-between items-center">
+              <div className="flex justify-start">
+                <span className="text-xl font-bold text-[#5E17EB]">Corvex</span>
+              </div>
+              <nav className="hidden md:flex space-x-6">
+                <a
+                  href="#about"
+                  className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
+                >
+                  About us
+                </a>
+                <a
+                  href="#services"
+                  className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
+                >
+                  Services
+                </a>
+                <a
+                  href="#use-cases"
+                  className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
+                >
+                  Use Cases
+                </a>
+                <a
+                  href="#contact"
+                  className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
+                >
+                  Contact
+                </a>
+              </nav>
+              <div className="flex items-center">
+                <Button className="bg-[#5E17EB] hover:bg-[#4A0EC9] text-white px-6 py-2 rounded-full text-sm font-medium transition-colors">
+                  Get Started
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ function LandingPage() {
                   <div>
                     <Button
                       size="lg"
-                      className="bg-[#5E17EB] hover:bg-[#4A0EC9] text-white px-8 py-3 rounded-lg font-medium transition-colors"
+                      className="bg-black hover:bg-gray-800 text-white px-8 py-6 rounded-lg font-medium transition-colors"
                     >
                       Get Started
                     </Button>
@@ -319,7 +319,7 @@ function LandingPage() {
         </div>
 
         {/* Case Studies Section */}
-        <div className="py-16 bg-white">
+        <div className="py-16 bg-white" id="use-cases">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header with side layout */}
             <div className="flex w-full max-w-[1440px] mx-auto px-[100px] items-start gap-10 mb-12">
@@ -881,7 +881,7 @@ function LandingPage() {
         </div>
 
         {/* Contact Us Section */}
-        <div className="py-16 bg-white">
+        <div className="py-16 bg-white" id="contact">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="mb-12 flex items-start gap-8">
@@ -956,51 +956,9 @@ function LandingPage() {
             </div>
           </div>
         </div>
-
-        {/* CTA Section */}
-        <div className="bg-blue-600">
-          <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-            <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-              <span className="block">Ready to get started?</span>
-              <span className="block text-blue-200">
-                Start your free trial today.
-              </span>
-            </h2>
-            <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-              <div className="inline-flex rounded-md shadow">
-                <Button size="lg" variant="secondary">
-                  Get Started
-                </Button>
-              </div>
-              <div className="ml-3 inline-flex rounded-md shadow">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-white border-white hover:bg-white hover:text-blue-600"
-                >
-                  Learn More
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white">
-        <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
-          <div className="flex justify-center space-x-6 md:order-2">
-            <p className="text-center text-sm text-gray-500">
-              Built with MERN Stack
-            </p>
-          </div>
-          <div className="mt-8 md:mt-0 md:order-1">
-            <p className="text-center text-base text-gray-400">
-              &copy; 2025 Corvex HR Management System. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
