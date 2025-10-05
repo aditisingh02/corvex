@@ -1,5 +1,6 @@
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import heroIllustration from "../assets/hero-illustration.svg";
 import servicesIllus1 from "../assets/services-illus-1.svg";
@@ -23,9 +24,9 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-white font-['Space_Grotesk']">
       {/* Header */}
-      <header className="p-4 sm:p-6 lg:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-3xl px-6 py-3">
+      <header className="p-4 sm:p-6 lg:p-8 flex justify-center">
+        <div className="max-w-4xl w-full">
+          <div className="bg-white rounded-3xl px-6 py-3 shadow-lg border border-gray-100">
             <div className="flex justify-between items-center">
               <div className="flex justify-start">
                 <span className="text-xl font-bold text-[#5E17EB]">Corvex</span>
@@ -57,9 +58,11 @@ function LandingPage() {
                 </a>
               </nav>
               <div className="flex items-center">
-                <Button className="bg-[#5E17EB] hover:bg-[#4A0EC9] text-white px-6 py-2 rounded-full text-sm font-medium transition-colors">
-                  Get Started
-                </Button>
+                <Link to="/login">
+                  <Button className="bg-[#5E17EB] hover:bg-[#4A0EC9] text-white px-6 py-2 rounded-full text-sm font-medium transition-colors">
+                    Get Started
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -71,9 +74,9 @@ function LandingPage() {
         <div className="relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16">
             <div className="py-12 md:py-16 lg:py-20">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-16 items-center">
                 {/* Left Column - Text Content */}
-                <div className="space-y-8">
+                <div className="lg:col-span-2 space-y-8">
                   <div className="space-y-6">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight">
                       Manage Your <span className="block">People,</span>
@@ -91,18 +94,20 @@ function LandingPage() {
                     </p>
                   </div>
                   <div>
-                    <Button
-                      size="lg"
-                      className="bg-black hover:bg-gray-800 text-white px-8 py-6 rounded-lg font-medium transition-colors"
-                    >
-                      Get Started
-                    </Button>
+                    <Link to="/login">
+                      <Button
+                        size="lg"
+                        className="bg-black hover:bg-gray-800 text-white px-8 py-6 rounded-lg font-medium transition-colors"
+                      >
+                        Get Started
+                      </Button>
+                    </Link>
                   </div>
                 </div>
 
                 {/* Right Column - Illustration */}
-                <div className="flex justify-center lg:justify-end">
-                  <div className="relative w-full max-w-md lg:max-w-lg">
+                <div className="lg:col-span-3 flex justify-center lg:justify-end">
+                  <div className="relative w-full max-w-2xl lg:max-w-3xl">
                     <img
                       src={heroIllustration}
                       alt="HR Management Illustration"
