@@ -8,6 +8,9 @@ import EnterOTP from "./components/EnterOTP";
 import Dashboard from "./components/Dashboard";
 import AllEmployees from "./components/AllEmployees";
 import AddNewEmployee from "./components/AddNewEmployee";
+import AllDepartments from "./components/AllDepartments";
+import ViewDepartment from "./components/ViewDepartment";
+import Attendance from "./components/Attendance";
 
 function App() {
   return (
@@ -19,8 +22,11 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/enter-otp" element={<EnterOTP />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/attendance" element={<Attendance />} />
         <Route path="/all-employees" element={<AllEmployees />} />
         <Route path="/add-employee" element={<AddNewEmployee />} />
+        <Route path="/all-departments" element={<AllDepartments />} />
+        <Route path="/department/:departmentId" element={<ViewDepartment />} />
       </Routes>
     </Router>
   );
