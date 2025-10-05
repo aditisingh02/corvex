@@ -24,7 +24,6 @@ const Sidebar = () => {
         </svg>
       ),
       path: "/dashboard",
-      isActive: true,
     },
     {
       id: "employees",
@@ -195,6 +194,13 @@ const Sidebar = () => {
   ];
 
   const isActiveRoute = (path) => {
+    // Special handling for employee-related routes
+    if (path === "/all-employees") {
+      return (
+        location.pathname === "/all-employees" ||
+        location.pathname === "/add-employee"
+      );
+    }
     return location.pathname === path;
   };
 
@@ -223,8 +229,7 @@ const Sidebar = () => {
       <nav className="pt-6">
         <ul className="space-y-1">
           {menuItems.map((item) => {
-            const isActive =
-              item.id === "dashboard" || isActiveRoute(item.path);
+            const isActive = isActiveRoute(item.path);
 
             return (
               <li key={item.id}>
