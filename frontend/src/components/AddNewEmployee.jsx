@@ -31,15 +31,16 @@ const AddNewEmployee = () => {
     salary: "",
 
     // Documents
-    resume: null,
-    idProof: null,
-    addressProof: null,
+    appointmentLetter: null,
+    salarySlips: null,
+    relievingLetter: null,
+    experienceLetter: null,
 
     // Account Access
-    username: "",
-    password: "",
-    confirmPassword: "",
-    accessLevel: "",
+    enterEmailAddress: "",
+    enterSlackId: "",
+    enterSkypeId: "",
+    enterGithubId: "",
   });
 
   const handleInputChange = (field, value) => {
@@ -127,6 +128,26 @@ const AddNewEmployee = () => {
       ),
     },
   ];
+
+  const handleNext = () => {
+    const currentTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+    if (currentTabIndex < tabs.length - 1) {
+      setActiveTab(tabs[currentTabIndex + 1].id);
+    }
+  };
+
+  const handlePrevious = () => {
+    const currentTabIndex = tabs.findIndex((tab) => tab.id === activeTab);
+    if (currentTabIndex > 0) {
+      setActiveTab(tabs[currentTabIndex - 1].id);
+    }
+  };
+
+  const handleSubmit = () => {
+    // Handle form submission here
+    console.log("Form submitted:", formData);
+    // You can add form validation and API call here
+  };
 
   const renderPersonalInformation = () => (
     <div className="space-y-6">
@@ -485,6 +506,189 @@ const AddNewEmployee = () => {
     </div>
   );
 
+  const renderDocuments = () => {
+    const handleFileUpload = (field, file) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: file,
+      }));
+    };
+
+    const DocumentUploadBox = ({
+      title,
+      field,
+      acceptedFormats = ".pdf,.doc,.docx",
+    }) => (
+      <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-[#5E17EB] transition-colors">
+        <div className="mb-4">
+          <div className="w-12 h-12 bg-[#5E17EB] rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg
+              className="w-6 h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+          </div>
+          <p className="text-sm font-medium text-gray-900 mb-1">{title}</p>
+          <p className="text-xs text-gray-500 mb-4">
+            Drag & Drop or{" "}
+            <button
+              type="button"
+              className="text-[#5E17EB] hover:text-[#4A0EC9] font-medium"
+              onClick={() => document.getElementById(field).click()}
+            >
+              choose file
+            </button>{" "}
+            to upload
+          </p>
+          <p className="text-xs text-gray-400">
+            Supported formats: {acceptedFormats}
+          </p>
+        </div>
+
+        <input
+          id={field}
+          type="file"
+          accept={acceptedFormats}
+          onChange={(e) => handleFileUpload(field, e.target.files[0])}
+          className="hidden"
+        />
+
+        {formData[field] && (
+          <div className="mt-3 p-2 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-700 truncate">
+              {formData[field].name}
+            </p>
+            <button
+              type="button"
+              onClick={() => handleFileUpload(field, null)}
+              className="text-xs text-red-600 hover:text-red-800 mt-1"
+            >
+              Remove file
+            </button>
+          </div>
+        )}
+      </div>
+    );
+
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Upload Appointment Letter
+            </label>
+            <DocumentUploadBox
+              title="Upload Appointment Letter"
+              field="appointmentLetter"
+              acceptedFormats=".pdf,.doc,.docx"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Upload Salary Slips
+            </label>
+            <DocumentUploadBox
+              title="Upload Salary Slips"
+              field="salarySlips"
+              acceptedFormats=".pdf,.doc,.docx"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Upload Relieving Letter
+            </label>
+            <DocumentUploadBox
+              title="Upload Relieving Letter"
+              field="relievingLetter"
+              acceptedFormats=".pdf,.doc,.docx"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Upload Experience Letter
+            </label>
+            <DocumentUploadBox
+              title="Upload Experience Letter"
+              field="experienceLetter"
+              acceptedFormats=".pdf,.doc,.docx"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderAccountAccess = () => (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Enter Email Address *
+          </label>
+          <input
+            type="email"
+            value={formData.enterEmailAddress}
+            onChange={(e) =>
+              handleInputChange("enterEmailAddress", e.target.value)
+            }
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+            placeholder="Enter email address"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Enter Slack ID
+          </label>
+          <input
+            type="text"
+            value={formData.enterSlackId}
+            onChange={(e) => handleInputChange("enterSlackId", e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+            placeholder="Enter Slack ID"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Enter Skype ID
+          </label>
+          <input
+            type="text"
+            value={formData.enterSkypeId}
+            onChange={(e) => handleInputChange("enterSkypeId", e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+            placeholder="Enter Skype ID"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Enter Github ID
+          </label>
+          <input
+            type="text"
+            value={formData.enterGithubId}
+            onChange={(e) => handleInputChange("enterGithubId", e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+            placeholder="Enter Github ID"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "personal":
@@ -492,21 +696,9 @@ const AddNewEmployee = () => {
       case "professional":
         return renderProfessionalInformation();
       case "documents":
-        return (
-          <div className="text-center py-12">
-            <p className="text-gray-500">
-              Documents upload form will be implemented here
-            </p>
-          </div>
-        );
+        return renderDocuments();
       case "account":
-        return (
-          <div className="text-center py-12">
-            <p className="text-gray-500">
-              Account Access form will be implemented here
-            </p>
-          </div>
-        );
+        return renderAccountAccess();
       default:
         return renderPersonalInformation();
     }
@@ -572,13 +764,28 @@ const AddNewEmployee = () => {
             <div className="p-6">{renderTabContent()}</div>
 
             {/* Action Buttons */}
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end space-x-4">
-              <button className="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                Cancel
-              </button>
-              <button className="px-6 py-2 bg-[#5E17EB] hover:bg-[#4A0EC9] text-white rounded-lg transition-colors">
-                {activeTab === "account" ? "Create Employee" : "Next"}
-              </button>
+            <div className="px-6 py-4 border-t border-gray-200 flex justify-between">
+              <div>
+                {activeTab !== "personal" && (
+                  <button
+                    onClick={handlePrevious}
+                    className="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Previous
+                  </button>
+                )}
+              </div>
+              <div className="flex space-x-4">
+                <button className="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  Cancel
+                </button>
+                <button
+                  onClick={activeTab === "account" ? handleSubmit : handleNext}
+                  className="px-6 py-2 bg-[#5E17EB] hover:bg-[#4A0EC9] text-white rounded-lg transition-colors"
+                >
+                  {activeTab === "account" ? "Add" : "Next"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
