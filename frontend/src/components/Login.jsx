@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 
 const Login = () => {
@@ -7,6 +7,21 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // Basic validation
+    if (!email || !password) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    // Here you would typically validate credentials with your backend
+    // For now, we'll just redirect to dashboard
+    navigate("/dashboard");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-['Space_Grotesk']">
@@ -52,7 +67,7 @@ const Login = () => {
           </div>
 
           {/* Login Form */}
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Email Field */}
             <div>
               <label
