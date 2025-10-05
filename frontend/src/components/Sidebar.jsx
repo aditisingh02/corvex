@@ -63,7 +63,7 @@ const Sidebar = () => {
           />
         </svg>
       ),
-      path: "/departments",
+      path: "/all-departments",
     },
     {
       id: "attendance",
