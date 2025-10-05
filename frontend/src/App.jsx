@@ -12,6 +12,7 @@ import AllDepartments from "./components/AllDepartments";
 import ViewDepartment from "./components/ViewDepartment";
 import Attendance from "./components/Attendance";
 import Payroll from "./components/Payroll";
+import NotFound from "./components/NotFound";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/add-employee" element={<AddNewEmployee />} />
         <Route path="/all-departments" element={<AllDepartments />} />
         <Route path="/department/:departmentId" element={<ViewDepartment />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
