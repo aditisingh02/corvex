@@ -33,12 +33,6 @@ function LandingPage() {
               </div>
               <nav className="hidden md:flex space-x-6">
                 <a
-                  href="#about"
-                  className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
-                >
-                  About us
-                </a>
-                <a
                   href="#services"
                   className="text-sm font-medium text-gray-600 hover:text-[#5E17EB] transition-colors"
                 >
@@ -79,17 +73,17 @@ function LandingPage() {
                 <div className="lg:col-span-2 space-y-8">
                   <div className="space-y-6">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight">
-                      Manage Your <span className="block">People,</span>
+                      Empower Your <span className="block">Workforce,</span>
                       <span className="block">
-                        Not <span className="text-[#5E17EB]">Paperwork.</span>
+                        Simplify <span className="text-[#5E17EB]">HR.</span>
                       </span>
                     </h1>
                     <p className="text-lg text-gray-600 max-w-lg leading-relaxed">
-                      Corvex is the all-in-one HR management platform that
-                      streamlines employee onboarding, payroll, performance, and
-                      compliance so your team can focus on what really matters:{" "}
+                      Corvex is your comprehensive HR management solution that
+                      transforms how you handle employee data, attendance, payroll, 
+                      and performance. Focus on growing your team while we handle the{" "}
                       <span className="font-semibold text-[#5E17EB]">
-                        people.
+                        details.
                       </span>
                     </p>
                   </div>
@@ -128,11 +122,11 @@ function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 w-full">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
-                Our Services
+                HR Solutions
               </h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                Comprehensive HR solutions designed to streamline your workforce
-                management
+                Complete HR management tools to optimize your employee experience
+                and organizational efficiency
               </p>
             </div>
 
@@ -140,18 +134,14 @@ function LandingPage() {
               {/* Effortless Onboarding */}
               <div className="bg-[#F3F3F3] rounded-3xl p-8 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex flex-col items-start mb-12">
+                  <div className="flex flex-col items-start">
                     <div className="bg-[#5E17EB] text-white px-4 py-2 rounded-lg text-lg font-medium">
-                      Effortless
+                      Employee
                     </div>
                     <div className="bg-[#5E17EB] text-white px-4 py-2 rounded-lg text-lg font-medium">
-                      Onboarding
+                      Management
                     </div>
                   </div>
-                  <button className="flex items-center text-[#5E17EB] font-medium hover:text-[#4A0EC9] transition-colors">
-                    <span className="mr-2">→</span>
-                    Learn more
-                  </button>
                 </div>
                 <div className="flex justify-center">
                   <img
@@ -165,7 +155,7 @@ function LandingPage() {
               {/* Simplified Payroll & Compliance */}
               <div className="bg-[#5E17EB] text-white rounded-3xl p-8 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex flex-col items-start mb-12">
+                  <div className="flex flex-col items-start">
                     <div className="bg-white text-black px-4 py-2 rounded-lg text-lg font-medium">
                       Simplified Payroll
                     </div>
@@ -173,10 +163,6 @@ function LandingPage() {
                       & Compliance
                     </div>
                   </div>
-                  <button className="flex items-center text-white font-medium hover:text-gray-200 transition-colors">
-                    <span className="mr-2">→</span>
-                    Learn more
-                  </button>
                 </div>
                 <div className="flex justify-center">
                   <img
@@ -190,7 +176,7 @@ function LandingPage() {
               {/* Smarter Performance Management */}
               <div className="bg-gray-900 text-white rounded-3xl p-8 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex flex-col items-start mb-12">
+                  <div className="flex flex-col items-start">
                     <div className="bg-white text-black px-4 py-2 rounded-lg text-lg font-medium">
                       Smarter Performance
                     </div>
@@ -198,10 +184,6 @@ function LandingPage() {
                       Management
                     </div>
                   </div>
-                  <button className="flex items-center text-white font-medium hover:text-gray-200 transition-colors">
-                    <span className="mr-2">→</span>
-                    Learn more
-                  </button>
                 </div>
                 <div className="flex justify-center">
                   <img
@@ -215,7 +197,7 @@ function LandingPage() {
               {/* Centralized Employee Hub */}
               <div className="bg-[#F3F3F3] rounded-3xl p-8 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex flex-col items-start mb-12">
+                  <div className="flex flex-col items-start">
                     <div className="bg-[#5E17EB] text-white px-4 py-2 rounded-lg text-lg font-medium">
                       Centralized
                     </div>
@@ -223,10 +205,6 @@ function LandingPage() {
                       Employee Hub
                     </div>
                   </div>
-                  <button className="flex items-center text-[#5E17EB] font-medium hover:text-[#4A0EC9] transition-colors">
-                    <span className="mr-2">→</span>
-                    Learn more
-                  </button>
                 </div>
                 <div className="flex justify-center">
                   <img
@@ -240,7 +218,7 @@ function LandingPage() {
               {/* Secure & Scalable */}
               <div className="bg-[#5E17EB] text-white rounded-3xl p-8 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex flex-col items-start mb-12">
+                  <div className="flex flex-col items-start">
                     <div className="bg-white text-black px-4 py-2 rounded-lg text-lg font-medium">
                       Secure &
                     </div>
@@ -248,10 +226,6 @@ function LandingPage() {
                       Scalable
                     </div>
                   </div>
-                  <button className="flex items-center text-white font-medium hover:text-gray-200 transition-colors">
-                    <span className="mr-2">→</span>
-                    Learn more
-                  </button>
                 </div>
                 <div className="flex justify-center">
                   <img
@@ -265,7 +239,7 @@ function LandingPage() {
               {/* Analytics and Tracking */}
               <div className="bg-gray-900 text-white rounded-3xl p-8 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 flex items-center justify-between">
                 <div className="flex-1">
-                  <div className="flex flex-col items-start mb-12">
+                  <div className="flex flex-col items-start">
                     <div className="bg-[#5E17EB] text-white px-4 py-2 rounded-lg text-lg font-medium">
                       Analytics and
                     </div>
@@ -273,10 +247,6 @@ function LandingPage() {
                       Tracking
                     </div>
                   </div>
-                  <button className="flex items-center text-white font-medium hover:text-gray-200 transition-colors">
-                    <span className="mr-2">→</span>
-                    Learn more
-                  </button>
                 </div>
                 <div className="flex justify-center">
                   <img
@@ -300,10 +270,7 @@ function LandingPage() {
                     Let's make things happen
                   </h2>
                   <p className="text-gray-700 mb-8 leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Nesciunt eveniet quidem deserunt placeat! Nam dolorem autem
-                    soluta aspernatur commodi sint, cum officiis facere
-                    voluptatibus vitae officia esse, illo tempore veritatis.
+                    Move beyond spreadsheets and unlock the strategic insights hidden in your workforce data. Corvex provides powerful analytics to help you reduce turnover, improve engagement, and build a team that drives growth.
                   </p>
                   <button className="bg-black text-white px-8 py-3 rounded-xl font-medium hover:bg-gray-800 transition-colors">
                     Get your free proposal
@@ -335,8 +302,8 @@ function LandingPage() {
               </div>
               <div className="flex-1">
                 <p className="text-lg text-black mt-2">
-                  Explore Real-Life Examples of Our Proven Digital Marketing
-                  Success through Our Case Studies
+                  Discover How Organizations Transform Their HR Operations
+                  with Our Comprehensive Solutions
                 </p>
               </div>
             </div>
@@ -347,12 +314,15 @@ function LandingPage() {
                 {/* Card 1 */}
                 <div className="text-white">
                   <p className="text-gray-300 mb-6 leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Nesciunt eveniet quidem deserunt placeat! Nam dolorem autem
-                    soluta aspernatur commodi sint, cum officiis facere
-                    voluptatibus vitae officia esse, illo tempore veritatis.
+                    Fast-growing startup Innovatech overcame its chaotic, 
+                    manual onboarding process by implementing Corvex. Our platform centralized their employee data and 
+                    automated workflows, creating a consistent and professional experience for new hires. This strategic 
+                    shift not only cut onboarding time by 50% but also saved their HR team 15 hours of administrative work weekly, 
+                    allowing them to focus on scaling the company instead of managing paperwork.
+
+
                   </p>
-                  <a
+                  {/* <a
                     href="#"
                     className="inline-flex items-center text-[#5E17EB] font-medium hover:text-purple-400 transition-colors"
                   >
@@ -370,18 +340,17 @@ function LandingPage() {
                         d="M9 5l7 7-7 7"
                       />
                     </svg>
-                  </a>
+                  </a> */}
                 </div>
 
                 {/* Card 2 */}
                 <div className="text-white border-l border-r border-gray-600 px-8">
                   <p className="text-gray-300 mb-6 leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Nesciunt eveniet quidem deserunt placeat! Nam dolorem autem
-                    soluta aspernatur commodi sint, cum officiis facere
-                    voluptatibus vitae officia esse, illo tempore veritatis.
+                    Creative agency Pixel Perfect tackled low engagement by replacing clunky annual reviews with Corvex’s dynamic portfolios and feedback tools. This resulted in a 30% boost in employee engagement scores in just the first quarter and significantly improved retention of top creative talent.
+
+
                   </p>
-                  <a
+                  {/* <a
                     href="#"
                     className="inline-flex items-center text-[#5E17EB] font-medium hover:text-purple-400 transition-colors"
                   >
@@ -399,18 +368,19 @@ function LandingPage() {
                         d="M9 5l7 7-7 7"
                       />
                     </svg>
-                  </a>
+                  </a> */}
                 </div>
 
                 {/* Card 3 */}
                 <div className="text-white">
                   <p className="text-gray-300 mb-6 leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Nesciunt eveniet quidem deserunt placeat! Nam dolorem autem
-                    soluta aspernatur commodi sint, cum officiis facere
-                    voluptatibus vitae officia esse, illo tempore veritatis.
+                    Mid-sized enterprise Global Connect transformed its HR strategy from reactive to 
+                    data-driven using Corvex. By consolidating their siloed workforce data into our powerful 
+                    analytics dashboard, their leadership gained actionable, real-time insights into key metrics.
+                    This newfound clarity enabled them to identify the root causes of attrition, leading to a new
+                    retention strategy that reduced employee turnover by 15% in the first year.
                   </p>
-                  <a
+                  {/* <a
                     href="#"
                     className="inline-flex items-center text-[#5E17EB] font-medium hover:text-purple-400 transition-colors"
                   >
@@ -428,7 +398,7 @@ function LandingPage() {
                         d="M9 5l7 7-7 7"
                       />
                     </svg>
-                  </a>
+                  </a> */}
                 </div>
               </div>
             </div>
@@ -504,7 +474,7 @@ function LandingPage() {
               </div>
               <div className="flex-1">
                 <p className="text-lg text-black mt-2">
-                  Step-by-Step Guide to Achieving your Business Goals
+                  Our Process for Implementing Your HR Management Solution
                 </p>
               </div>
             </div>
@@ -542,11 +512,10 @@ function LandingPage() {
                 {openAccordion === 1 && (
                   <div className="px-6 pb-6">
                     <p className="text-white/90 leading-relaxed">
-                      During the initial consultation, we will discuss your
-                      business goals and objectives, target audience, and
-                      current marketing efforts. This will allow us to
-                      understand your needs and tailor our services to best fit
-                      your requirements.
+                      We begin by understanding your organization's HR needs,
+                      current processes, and pain points. This helps us configure
+                      the system to match your specific requirements and ensure
+                      a smooth transition.
                     </p>
                   </div>
                 )}
@@ -569,7 +538,7 @@ function LandingPage() {
                   <div className="flex items-center space-x-4">
                     <span className="text-xl font-bold">02</span>
                     <span className="text-lg font-semibold">
-                      Research and Strategy Development
+                      System Setup and Configuration
                     </span>
                   </div>
                   <div
@@ -585,10 +554,9 @@ function LandingPage() {
                 {openAccordion === 2 && (
                   <div className="px-6 pb-6">
                     <p className="text-white/90 leading-relaxed">
-                      We conduct thorough market research and competitive
-                      analysis to develop a comprehensive strategy that aligns
-                      with your business objectives and target audience
-                      preferences.
+                      Our team configures the HR management system according to
+                      your organization's structure, policies, and workflows.
+                      We ensure all modules are properly set up and integrated.
                     </p>
                   </div>
                 )}
@@ -611,7 +579,7 @@ function LandingPage() {
                   <div className="flex items-center space-x-4">
                     <span className="text-xl font-bold">03</span>
                     <span className="text-lg font-semibold">
-                      Implementation
+                      Data Migration & Training
                     </span>
                   </div>
                   <div
@@ -627,9 +595,9 @@ function LandingPage() {
                 {openAccordion === 3 && (
                   <div className="px-6 pb-6">
                     <p className="text-white/90 leading-relaxed">
-                      Our team executes the strategy with precision,
-                      implementing all planned marketing activities while
-                      maintaining constant communication throughout the process.
+                      We carefully migrate your existing HR data and provide
+                      comprehensive training to your team on using the new system.
+                      This ensures a smooth transition and quick adoption.
                     </p>
                   </div>
                 )}
@@ -668,9 +636,9 @@ function LandingPage() {
                 {openAccordion === 4 && (
                   <div className="px-6 pb-6">
                     <p className="text-white/90 leading-relaxed">
-                      We continuously monitor performance metrics and optimize
-                      campaigns to ensure maximum ROI and achievement of your
-                      business goals.
+                      We track system usage, monitor performance, and gather
+                      feedback to ensure the HR system is meeting your needs
+                      and helping achieve organizational goals.
                     </p>
                   </div>
                 )}
@@ -709,9 +677,9 @@ function LandingPage() {
                 {openAccordion === 5 && (
                   <div className="px-6 pb-6">
                     <p className="text-white/90 leading-relaxed">
-                      Regular reporting and transparent communication keep you
-                      informed about progress, results, and recommendations for
-                      future improvements.
+                      Access detailed HR analytics and reports through our
+                      dashboard. Our support team maintains regular communication
+                      to address any questions or concerns.
                     </p>
                   </div>
                 )}
@@ -750,9 +718,9 @@ function LandingPage() {
                 {openAccordion === 6 && (
                   <div className="px-6 pb-6">
                     <p className="text-white/90 leading-relaxed">
-                      We believe in continuous improvement and will work with
-                      you to refine and enhance your marketing strategy based on
-                      performance data and market changes.
+                      We regularly update our HR platform with new features
+                      and improvements based on user feedback and evolving HR
+                      best practices.
                     </p>
                   </div>
                 )}
@@ -804,13 +772,15 @@ function LandingPage() {
                   <h3 className="text-lg font-bold text-black mb-1">
                     Aditi Kanagala
                   </h3>
-                  <p className="text-gray-600">Something</p>
+                  <p className="text-gray-600">Frontend Architect | UI/UX Specialist</p>
                 </div>
 
                 {/* Description */}
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto
-                  non deserunt, commodi et doloremque ducimus officia eos
+                  A creative developer passionate about crafting intuitive and visually compelling user interfaces.
+                  Aditi specializes in translating complex design concepts into responsive, high-performance web applications using modern frameworks like React.
+
+
                 </p>
               </div>
 
@@ -838,13 +808,15 @@ function LandingPage() {
                   <h3 className="text-lg font-bold text-black mb-1">
                     Aditi Singh
                   </h3>
-                  <p className="text-gray-600">Something</p>
+                  <p className="text-gray-600"> Full-Stack Developer| UI/UX Specialist</p>
                 </div>
 
                 {/* Description */}
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto
-                  non deserunt, commodi et doloremque ducimus officia eos
+                  A problem-solver at heart, Aditi architects and develops comprehensive web applications.
+                  Her expertise spans from database design to API implementation, ensuring our applications are not only functional but also scalable and efficient.
+
+
                 </p>
               </div>
 
@@ -853,7 +825,7 @@ function LandingPage() {
                 {/* Profile Icon */}
                 <div className="absolute top-4 right-4">
                   <a
-                    href="https://linkedin.com/in/vraj-soni"
+                    href="https://www.linkedin.com/in/vraj-soni2412/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-8 h-8 bg-[#5E17EB] rounded-full flex items-center justify-center hover:bg-purple-700 transition-colors"
@@ -872,13 +844,13 @@ function LandingPage() {
                   <h3 className="text-lg font-bold text-black mb-1">
                     Vraj Soni
                   </h3>
-                  <p className="text-gray-600">Something</p>
+                  <p className="text-gray-600">Full-Stack Developer | DevOps Lead</p>
                 </div>
 
                 {/* Description */}
                 <p className="text-gray-700 text-sm leading-relaxed">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto
-                  non deserunt, commodi et doloremque ducimus officia eos
+                  Bridging the gap between development and operations, Vraj ensures our project runs smoothly from code to deployment. 
+                  He is proficient across the entire stack and specializes in building CI/CD pipelines and managing cloud infrastructure for seamless integration and delivery.
                 </p>
               </div>
             </div>
@@ -895,8 +867,8 @@ function LandingPage() {
               </div>
               <div className="flex-1">
                 <p className="text-lg text-black mt-2">
-                  Connect with Us: Let's Discuss Your <br /> Digital Marketing
-                  Needs
+                  Get in Touch: Let's Discuss Your <br /> HR Management
+                  Requirements
                 </p>
               </div>
             </div>
