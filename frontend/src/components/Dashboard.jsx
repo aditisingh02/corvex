@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import Calendar from "./Calendar";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [currentDate] = useState(new Date());
 
   // Sample data for the dashboard
@@ -86,7 +88,7 @@ const Dashboard = () => {
   const employees = [
     {
       id: 1,
-      name: "Jennie Watson",
+      name: "Riya Agarwal",
       designation: "Team Lead - Design",
       type: "Office",
       checkIn: "09:07 AM",
@@ -96,7 +98,7 @@ const Dashboard = () => {
     },
     {
       id: 2,
-      name: "Darlene Robertson",
+      name: "Kavya Reddy",
       designation: "Web Designer",
       type: "Office",
       checkIn: "10:15 AM",
@@ -106,7 +108,7 @@ const Dashboard = () => {
     },
     {
       id: 3,
-      name: "Jacob Jones",
+      name: "Vivek Yadav",
       designation: "Medical Assistant",
       type: "Remote",
       checkIn: "10:24 AM",
@@ -116,7 +118,7 @@ const Dashboard = () => {
     },
     {
       id: 4,
-      name: "Kathryn Murphy",
+      name: "Pooja Kumari",
       designation: "Marketing Coordinator",
       type: "Office",
       checkIn: "09:19 AM",
@@ -292,7 +294,10 @@ const Dashboard = () => {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Attendance Overview
                   </h3>
-                  <button className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                  <button 
+                    onClick={() => navigate('/attendance')}
+                    className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                  >
                     View All
                   </button>
                 </div>
