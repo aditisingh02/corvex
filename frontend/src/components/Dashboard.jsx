@@ -294,8 +294,8 @@ const Dashboard = () => {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Attendance Overview
                   </h3>
-                  <button 
-                    onClick={() => navigate('/attendance')}
+                  <button
+                    onClick={() => navigate("/attendance")}
                     className="text-sm text-purple-600 hover:text-purple-700 font-medium transition-colors"
                   >
                     View All
