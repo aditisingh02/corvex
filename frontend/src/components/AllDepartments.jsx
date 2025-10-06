@@ -15,14 +15,14 @@ const AllDepartments = () => {
       employees: [
         {
           id: 1,
-          name: "Dianne Russell",
+          name: "Sneha Gupta",
           avatar:
             "https://images.unsplash.com/photo-1494790108755-2616b612b619?w=40&h=40&fit=crop&crop=face",
           designation: "UI/UX Designer",
         },
         {
           id: 2,
-          name: "Arlene McCoy",
+          name: "Priya Sharma",
           avatar:
             "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
           designation: "Graphic Designer",

@@ -26,7 +26,7 @@ const Attendance = () => {
     {
       id: 2,
       employeeId: "EMP002",
-      name: "Dianne Robertson",
+      name: "Kavya Reddy",
       avatar:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
       designation: "Web Designer",
@@ -134,7 +134,7 @@ const Attendance = () => {
     {
       id: 11,
       employeeId: "EMP011",
-      name: "Jerome Bell",
+      name: "Karan Singh",
       avatar:
         "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=40&h=40&fit=crop&crop=face",
       designation: "Sales Manager",

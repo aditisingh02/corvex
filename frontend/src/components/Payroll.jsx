@@ -12,7 +12,7 @@ const Payroll = () => {
     {
       id: 1,
       employeeId: "EMP001",
-      name: "Leslie Watson",
+      name: "Riya Agarwal",
       avatar:
         "https://images.unsplash.com/photo-1494790108755-2616b612c2d5?w=40&h=40&fit=crop&crop=face",
       ctc: "₹45000",
@@ -24,7 +24,7 @@ const Payroll = () => {
     {
       id: 2,
       employeeId: "EMP002",
-      name: "Darlene Robertson",
+      name: "Kavya Reddy",
       avatar:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
       ctc: "₹50000",
@@ -36,7 +36,7 @@ const Payroll = () => {
     {
       id: 3,
       employeeId: "EMP003",
-      name: "Jacob Jones",
+      name: "Vivek Yadav",
       avatar:
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
       ctc: "₹80000",
@@ -48,7 +48,7 @@ const Payroll = () => {
     {
       id: 4,
       employeeId: "EMP004",
-      name: "Kathryn Murphy",
+      name: "Pooja Kumari",
       avatar:
         "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=40&h=40&fit=crop&crop=face",
       ctc: "₹55000",
@@ -132,7 +132,7 @@ const Payroll = () => {
     {
       id: 11,
       employeeId: "EMP011",
-      name: "Jerome Bell",
+      name: "Karan Singh",
       avatar:
         "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=40&h=40&fit=crop&crop=face",
       ctc: "₹78000",

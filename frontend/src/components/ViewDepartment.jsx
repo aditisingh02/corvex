@@ -17,7 +17,7 @@ const ViewDepartment = () => {
       employees: [
         {
           id: "09746406",
-          name: "Floyd Miles",
+          name: "Arjun Patel",
           avatar:
             "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
           designation: "Lead UI/UX Designer",
@@ -26,7 +26,7 @@ const ViewDepartment = () => {
         },
         {
           id: "45356752",
-          name: "Dianne Fisher",
+          name: "Meera Joshi",
           avatar:
             "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
           designation: "Sr UI/UX Designer",
@@ -35,7 +35,7 @@ const ViewDepartment = () => {
         },
         {
           id: "34535131",
-          name: "Jerome Bell",
+          name: "Karan Singh",
           avatar:
             "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
           designation: "Sr UI/UX Designer",
