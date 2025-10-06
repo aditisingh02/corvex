@@ -16,6 +16,9 @@ const Jobs = () => {
   });
   const itemsPerPage = 9;
 
+  // Conversion rate USD to INR (example: 1 USD = 83 INR)
+  const USD_TO_INR = 83;
+
   // Sample jobs data
   const jobsData = [
     {
@@ -23,7 +26,7 @@ const Jobs = () => {
       title: "UI/UX Designer",
       department: "Design",
       location: "California, USA",
-      salary: "$3500",
+      salary: `₹${3500 * USD_TO_INR}`,
       period: "/Month",
       status: "Active",
       tags: ["Design", "UI/UX", "Figma"],
@@ -34,7 +37,7 @@ const Jobs = () => {
       title: "Hr Executive",
       department: "Human Resources",
       location: "California, USA",
-      salary: "$3600",
+      salary: `₹${3600 * USD_TO_INR}`,
       period: "/Month",
       status: "Inactive",
       tags: ["Full Time", "Remote"],
@@ -45,7 +48,7 @@ const Jobs = () => {
       title: "UI/UX Designer",
       department: "Design",
       location: "California, USA",
-      salary: "$3500",
+      salary: `₹${3500 * USD_TO_INR}`,
       period: "/Month",
       status: "Completed",
       tags: ["Design", "Full Time", "Remote"],
@@ -56,7 +59,7 @@ const Jobs = () => {
       title: "Sr. UX Researcher",
       department: "Research",
       location: "New York, USA",
-      salary: "$1500",
+      salary: `₹${1500 * USD_TO_INR}`,
       period: "/Month",
       status: "Active",
       tags: ["Research", "Full Time"],
@@ -67,7 +70,7 @@ const Jobs = () => {
       title: "Python Developer",
       department: "Engineering",
       location: "New York, USA",
-      salary: "$1500",
+      salary: `₹${1500 * USD_TO_INR}`,
       period: "/Month",
       status: "Inactive",
       tags: ["Engineering", "Python"],
@@ -78,7 +81,7 @@ const Jobs = () => {
       title: "Sr. UX Researcher",
       department: "Research",
       location: "New York, USA",
-      salary: "$1500",
+      salary: `₹${1500 * USD_TO_INR}`,
       period: "/Month",
       status: "Completed",
       tags: ["Research", "Full Time"],
@@ -89,7 +92,7 @@ const Jobs = () => {
       title: "BDM",
       department: "Business Development",
       location: "New York, USA",
-      salary: "$1000",
+      salary: `₹${1000 * USD_TO_INR}`,
       period: "/Month",
       status: "Active",
       tags: ["Sales", "Full Time"],
@@ -100,7 +103,7 @@ const Jobs = () => {
       title: "BDM",
       department: "Business Development",
       location: "New York, USA",
-      salary: "$1000",
+      salary: `₹${1000 * USD_TO_INR}`,
       period: "/Month",
       status: "Completed",
       tags: ["Sales", "Full Time"],
@@ -111,7 +114,7 @@ const Jobs = () => {
       title: "React JS",
       department: "Engineering",
       location: "California, USA",
-      salary: "$2000",
+      salary: `₹${2000 * USD_TO_INR}`,
       period: "/Month",
       status: "Active",
       tags: ["Engineering", "Full Time"],
@@ -172,8 +175,14 @@ const Jobs = () => {
 
   const handleSubmitJob = (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log("New job data:", newJob);
+    // Convert entered amount from USD to INR
+    const inrAmount = `₹${parseInt(newJob.amount.replace(/[^0-9]/g, "")) * USD_TO_INR}`;
+    const jobData = {
+      ...newJob,
+      salary: inrAmount,
+    };
+    // Here you would typically send jobData to your backend
+    console.log("New job data:", jobData);
     // For now, just close the modal
     handleCloseModal();
     // You could also add the job to the local state if needed
@@ -542,17 +551,18 @@ const Jobs = () => {
               {/* Amount */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Enter Amount
+                  Enter Amount (USD)
                 </label>
                 <input
                   type="text"
                   name="amount"
                   value={newJob.amount}
                   onChange={handleInputChange}
-                  placeholder="e.g., $3500"
+                  placeholder="e.g., 3500"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">Will be converted to INR</p>
               </div>
 
               {/* Job Type */}
