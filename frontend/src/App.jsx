@@ -13,6 +13,8 @@ import ViewDepartment from "./components/ViewDepartment";
 import Attendance from "./components/Attendance";
 import Payroll from "./components/Payroll";
 import Jobs from "./components/Jobs";
+import Candidates from "./components/Candidates";
+import Holidays from "./components/Holidays";
 import NotFound from "./components/NotFound";
 
 function App() {
@@ -27,7 +29,9 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/attendance" element={<Attendance />} />
         <Route path="/payroll" element={<Payroll />} />
-        <Route path="/jobs" element={<Jobs />}/>
+        <Route path="/jobs" element={<Jobs />} />
+        <Route path="/candidates" element={<Candidates />} />
+        <Route path="/holidays" element={<Holidays />} />
         <Route path="/all-employees" element={<AllEmployees />} />
         <Route path="/add-employee" element={<AddNewEmployee />} />
         <Route path="/all-departments" element={<AllDepartments />} />
