@@ -1,9 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
 const AddNewEmployee = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("personal");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [newEmployeeId, setNewEmployeeId] = useState(null);
   const [formData, setFormData] = useState({
     // Personal Information
     firstName: "",
@@ -146,6 +150,10 @@ const AddNewEmployee = () => {
   const handleSubmit = () => {
     // Handle form submission here
     console.log("Form submitted:", formData);
+    // Simulate generating a new employee ID
+    const generatedId = Math.random().toString(36).substr(2, 8);
+    setNewEmployeeId(generatedId);
+    setShowSuccessModal(true);
     // You can add form validation and API call here
   };
 
@@ -790,6 +798,58 @@ const AddNewEmployee = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg
+                  className="w-8 h-8 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Employee Added Successfully!
+              </h3>
+              <p className="text-gray-600 mb-6">
+                New employee has been created with ID:{" "}
+                <span className="font-medium">{newEmployeeId}</span>
+              </p>
+              <div className="flex space-x-3 justify-center">
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    navigate("/all-employees");
+                  }}
+                  className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Back to Employees
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSuccessModal(false);
+                    navigate(`/employee/${newEmployeeId}`);
+                  }}
+                  className="px-4 py-2 bg-[#5E17EB] text-white rounded-lg hover:bg-[#4A12C7] transition-colors"
+                >
+                  View Employee
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

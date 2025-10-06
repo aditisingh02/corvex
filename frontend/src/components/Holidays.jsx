@@ -11,8 +11,8 @@ const Holidays = () => {
     date: "",
   });
 
-  // Sample holidays data with current year dates
-  const holidaysData = [
+  // Sample holidays data with current year dates - now using state
+  const [holidaysData, setHolidaysData] = useState([
     {
       id: 1,
       date: "January 01, 2025",
@@ -90,7 +90,7 @@ const Holidays = () => {
       name: "New Year's Eve",
       dateObj: new Date("2025-12-31"),
     },
-  ];
+  ]);
 
   // Get current date for comparison
   const currentDate = new Date();
@@ -142,9 +142,60 @@ const Holidays = () => {
 
   const handleSubmitHoliday = (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log("New holiday data:", newHoliday);
-    // For now, just close the modal
+
+    if (!newHoliday.name || !newHoliday.date) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    // Create the new holiday object
+    const selectedDate = new Date(newHoliday.date);
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    const formattedDate = `${monthNames[selectedDate.getMonth()]} ${selectedDate
+      .getDate()
+      .toString()
+      .padStart(2, "0")}, ${selectedDate.getFullYear()}`;
+    const dayName = dayNames[selectedDate.getDay()];
+
+    const newHolidayObj = {
+      id: holidaysData.length + 1,
+      date: formattedDate,
+      day: dayName,
+      name: newHoliday.name,
+      dateObj: selectedDate,
+    };
+
+    // Add the new holiday to the state in chronological order
+    setHolidaysData((prev) => {
+      const updatedHolidays = [...prev, newHolidayObj];
+      // Sort by date to maintain chronological order
+      return updatedHolidays.sort((a, b) => a.dateObj - b.dateObj);
+    });
+
+    // Close the modal and reset form
     handleCloseModal();
   };
 

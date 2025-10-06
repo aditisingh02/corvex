@@ -2,135 +2,15 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { employeesData } from "../data/employeesData";
 
 const AllEmployees = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("All");
 
-  // Sample employee data
-  const employees = [
-    {
-      id: "34535131",
-      name: "Jessica Robertson",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b619?w=40&h=40&fit=crop&crop=face",
-      department: "Design",
-      designation: "UX/UI Designer",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "09746406",
-      name: "Floyd Miles",
-      avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-      department: "Development",
-      designation: "PHP Developer",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "09746405",
-      name: "Dianne Russell",
-      avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
-      department: "Design",
-      designation: "Graphic Designer",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "34535131",
-      name: "Jerome Russell",
-      avatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-      department: "Sales",
-      designation: "BDM",
-      type: "Remote",
-      status: "Permanent",
-    },
-    {
-      id: "45367891",
-      name: "Savannah Nguyen",
-      avatar:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
-      department: "Design",
-      designation: "Design Lead",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "09585765",
-      name: "Jacob Jones",
-      avatar:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face",
-      department: "Development",
-      designation: "Python Developer",
-      type: "Remote",
-      status: "Permanent",
-    },
-    {
-      id: "55687502",
-      name: "Marvin McKinney",
-      avatar:
-        "https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=40&h=40&fit=crop&crop=face",
-      department: "Development",
-      designation: "Sr.UI Developer",
-      type: "Remote",
-      status: "Permanent",
-    },
-    {
-      id: "54535011",
-      name: "Brooklyn Simmons",
-      avatar:
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face",
-      department: "HR",
-      designation: "Project Manager",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "54535012",
-      name: "Cristian Watson",
-      avatar:
-        "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=40&h=40&fit=crop&crop=face",
-      department: "Development",
-      designation: "HR Executive",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "09865892",
-      name: "Kathryn Murphy",
-      avatar:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&h=40&fit=crop&crop=face",
-      department: "Development",
-      designation: "React JS Developer",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "87193543",
-      name: "Arlene McCoy",
-      avatar:
-        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=40&h=40&fit=crop&crop=face",
-      department: "Development",
-      designation: "Node JS",
-      type: "Office",
-      status: "Permanent",
-    },
-    {
-      id: "09553410",
-      name: "Devon Lane",
-      avatar:
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=40&h=40&fit=crop&crop=face",
-      department: "BA",
-      designation: "Business Analyst",
-      type: "Remote",
-      status: "Permanent",
-    },
-  ];
+  // Use shared employee data
+  const employees = employeesData;
 
   // Filter employees based on search term and filter type
   const filteredEmployees = employees.filter((employee) => {
@@ -293,7 +173,10 @@ const AllEmployees = () => {
                     {/* Actions */}
                     <div className="col-span-1">
                       <div className="flex items-center space-x-2">
-                        <button className="p-1 text-gray-400 hover:text-blue-600 transition-colors">
+                        <button
+                          onClick={() => navigate(`/employee/${employee.id}`)}
+                          className="p-1 text-gray-400 hover:text-[#5E17EB] transition-colors"
+                        >
                           <svg
                             className="w-4 h-4"
                             fill="none"
