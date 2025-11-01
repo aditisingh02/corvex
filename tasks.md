@@ -4,11 +4,11 @@
 
 - [x] Complete Figma design UI
 - [x] Create landing page
-- [ ] Set up project repositories and initialize MERN stack
+- [x] Set up project repositories and initialize MERN stack
 - [ ] Design database schema for users, employees, departments, attendance, and leave
 - [ ] Implement user authentication and role-based authorization
 - [ ] Develop RESTful API endpoints for core modules (employees, departments, attendance, leave)
-- [ ] Create React frontend with role-based dashboards
+- [x] Create React frontend with role-based dashboards
 - [ ] Integrate frontend with backend API
 - [ ] Set up error handling and validation
 - [ ] Write unit and integration tests
