@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
 
 const LearningManagement = () => {
   const [activeTab, setActiveTab] = useState('courses');
@@ -238,12 +240,16 @@ const LearningManagement = () => {
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-['Space_Grotesk']">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Learning Management System</h1>
-        <p className="text-gray-600">Manage employee training, courses, and certifications</p>
-      </div>
+    <div className="flex h-screen bg-gray-50 font-['Space_Grotesk']">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Learning Management System</h1>
+            <p className="text-gray-600">Manage employee training, courses, and certifications</p>
+          </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -470,6 +476,8 @@ const LearningManagement = () => {
             </div>
           </div>
         )}
+      </div>
+        </main>
       </div>
     </div>
   );

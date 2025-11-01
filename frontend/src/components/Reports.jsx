@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
 
 const Reports = () => {
   const [selectedReport, setSelectedReport] = useState('employee');
@@ -163,12 +165,16 @@ const Reports = () => {
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-['Space_Grotesk']">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Reports</h1>
-        <p className="text-gray-600">Generate comprehensive reports for all HR functions</p>
-      </div>
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <div className="p-8 bg-gray-50 min-h-screen font-['Space_Grotesk']">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Reports</h1>
+            <p className="text-gray-600">Generate comprehensive reports for all HR functions</p>
+          </div>
 
       {/* Report Type Selection */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -291,6 +297,8 @@ const Reports = () => {
               <button className="text-red-600 hover:text-red-700 text-sm">Delete</button>
             </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>

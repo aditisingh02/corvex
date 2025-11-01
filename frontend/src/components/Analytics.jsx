@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
 
 const Analytics = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('thisMonth');
@@ -90,12 +92,16 @@ const Analytics = () => {
   );
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-['Space_Grotesk']">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Analytics</h1>
-        <p className="text-gray-600">Comprehensive insights into your workforce and HR operations</p>
-      </div>
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <div className="p-8 bg-gray-50 min-h-screen font-['Space_Grotesk']">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Analytics</h1>
+            <p className="text-gray-600">Comprehensive insights into your workforce and HR operations</p>
+          </div>
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
@@ -265,6 +271,8 @@ const Analytics = () => {
             <span className="text-gray-600">Training session completed by 15 employees</span>
             <span className="ml-auto text-gray-400">1 day ago</span>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>

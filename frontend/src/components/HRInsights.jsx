@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import Header from './Header';
 
 const HRInsights = () => {
   const [selectedInsight, setSelectedInsight] = useState('workforce');
@@ -323,12 +325,16 @@ const HRInsights = () => {
   };
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-['Space_Grotesk']">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Insights</h1>
-        <p className="text-gray-600">Advanced analytics and insights for strategic HR decisions</p>
-      </div>
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <div className="p-8 bg-gray-50 min-h-screen font-['Space_Grotesk']">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">HR Insights</h1>
+            <p className="text-gray-600">Advanced analytics and insights for strategic HR decisions</p>
+          </div>
 
       {/* Controls */}
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
@@ -390,6 +396,8 @@ const HRInsights = () => {
               </li>
             </ul>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>
