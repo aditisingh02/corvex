@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { USER_ROLES } from '../utils/roleManager';
+import { authService } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -15,86 +16,34 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  // Mock users for demo purposes
-  const mockUsers = {
-    'admin@corvex.com': {
-      id: 1,
-      email: 'admin@corvex.com',
-      name: 'System Administrator',
-      role: USER_ROLES.SUPER_ADMIN,
-      department: 'IT',
-      avatar: '/api/placeholder/40/40',
-      employeeId: 'EMP001'
-    },
-    'hr.manager@corvex.com': {
-      id: 2,
-      email: 'hr.manager@corvex.com',
-      name: 'Sarah Johnson',
-      role: USER_ROLES.HR_MANAGER,
-      department: 'Human Resources',
-      avatar: '/api/placeholder/40/40',
-      employeeId: 'EMP002'
-    },
-    'hr.coordinator@corvex.com': {
-      id: 3,
-      email: 'hr.coordinator@corvex.com',
-      name: 'Mike Chen',
-      role: USER_ROLES.HR_COORDINATOR,
-      department: 'Human Resources',
-      avatar: '/api/placeholder/40/40',
-      employeeId: 'EMP003'
-    },
-    'manager@corvex.com': {
-      id: 4,
-      email: 'manager@corvex.com',
-      name: 'Emily Davis',
-      role: USER_ROLES.MANAGER,
-      department: 'Engineering',
-      avatar: '/api/placeholder/40/40',
-      employeeId: 'EMP004',
-      teamMembers: ['EMP005', 'EMP006', 'EMP007']
-    },
-    'employee@corvex.com': {
-      id: 5,
-      email: 'employee@corvex.com',
-      name: 'John Smith',
-      role: USER_ROLES.EMPLOYEE,
-      department: 'Engineering',
-      avatar: '/api/placeholder/40/40',
-      employeeId: 'EMP005',
-      managerId: 'EMP004'
-    },
-    'recruiter@corvex.com': {
-      id: 6,
-      email: 'recruiter@corvex.com',
-      name: 'Lisa Wilson',
-      role: USER_ROLES.RECRUITER,
-      department: 'Human Resources',
-      avatar: '/api/placeholder/40/40',
-      employeeId: 'EMP006'
-    }
-  };
+  const [error, setError] = useState(null);
 
   // Check for stored user session on app load
   useEffect(() => {
-    const checkAuthStatus = () => {
+    const checkAuthStatus = async () => {
       try {
-        const storedUser = localStorage.getItem('corvex_user');
-        const storedToken = localStorage.getItem('corvex_token');
+        setLoading(true);
         
-        if (storedUser && storedToken) {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
-          setIsAuthenticated(true);
+        // Check if token exists
+        if (authService.isAuthenticated()) {
+          // Verify token with backend
+          const response = await authService.getCurrentUser();
+          if (response.success) {
+            setUser(response.user);
+            setIsAuthenticated(true);
+          } else {
+            // Token is invalid, clear it
+            authService.logout();
+          }
         }
       } catch (error) {
         console.error('Error checking auth status:', error);
-        // Clear invalid data
-        localStorage.removeItem('corvex_user');
-        localStorage.removeItem('corvex_token');
+        // Clear invalid auth data
+        authService.logout();
+        setError('Session expired. Please login again.');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     checkAuthStatus();
@@ -103,99 +52,123 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
+      setError(null);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await authService.login({ email, password });
       
-      // Check if user exists in mock data
-      const userData = mockUsers[email.toLowerCase()];
-      
-      if (!userData) {
-        throw new Error('Invalid email or password');
+      if (response.success) {
+        setUser(response.user);
+        setIsAuthenticated(true);
+        return { success: true, user: response.user };
+      } else {
+        throw new Error(response.message || 'Login failed');
       }
-      
-      // For demo purposes, accept any password for valid emails
-      // In real app, you'd validate against backend
-      
-      // Generate mock JWT token
-      const mockToken = `mock_jwt_${userData.id}_${Date.now()}`;
-      
-      // Store user data and token
-      localStorage.setItem('corvex_user', JSON.stringify(userData));
-      localStorage.setItem('corvex_token', mockToken);
-      
-      setUser(userData);
-      setIsAuthenticated(true);
-      
-      return { success: true, user: userData };
     } catch (error) {
       console.error('Login error:', error);
+      setError(error.message);
       return { success: false, error: error.message };
     } finally {
       setLoading(false);
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     try {
-      // Clear stored data
-      localStorage.removeItem('corvex_user');
-      localStorage.removeItem('corvex_token');
+      setLoading(true);
+      
+      // Call backend logout
+      await authService.logout();
       
       // Reset state
       setUser(null);
       setIsAuthenticated(false);
+      setError(null);
       
       return { success: true };
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if backend logout fails, clear local state
+      setUser(null);
+      setIsAuthenticated(false);
+      setError(null);
       return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const updateUserProfile = (updatedData) => {
+  const register = async (userData) => {
     try {
-      const updatedUser = { ...user, ...updatedData };
-      localStorage.setItem('corvex_user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      return { success: true, user: updatedUser };
+      setLoading(true);
+      setError(null);
+      
+      const response = await authService.register(userData);
+      
+      if (response.success) {
+        setUser(response.user);
+        setIsAuthenticated(true);
+        return { success: true, user: response.user };
+      } else {
+        throw new Error(response.message || 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setError(error.message);
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUserProfile = async (updatedData) => {
+    try {
+      setLoading(true);
+      const response = await authService.updateDetails(updatedData);
+      
+      if (response.success) {
+        setUser(response.user);
+        return { success: true, user: response.user };
+      } else {
+        throw new Error(response.message || 'Update failed');
+      }
     } catch (error) {
       console.error('Profile update error:', error);
+      setError(error.message);
       return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const switchRole = (newRole) => {
-    // For demo purposes - allow switching roles
+  const updatePassword = async (currentPassword, newPassword) => {
     try {
-      const updatedUser = { ...user, role: newRole };
-      localStorage.setItem('corvex_user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      return { success: true, user: updatedUser };
+      setLoading(true);
+      const response = await authService.updatePassword(currentPassword, newPassword);
+      
+      if (response.success) {
+        return { success: true };
+      } else {
+        throw new Error(response.message || 'Password update failed');
+      }
     } catch (error) {
-      console.error('Role switch error:', error);
+      console.error('Password update error:', error);
+      setError(error.message);
       return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const getDemoUsers = () => {
-    return Object.values(mockUsers).map(user => ({
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      department: user.department
-    }));
   };
 
   const value = {
     user,
     loading,
     isAuthenticated,
+    error,
     login,
     logout,
+    register,
     updateUserProfile,
-    switchRole,
-    getDemoUsers,
+    updatePassword,
     
     // Helper functions
     isAdmin: () => user?.role === USER_ROLES.SUPER_ADMIN,

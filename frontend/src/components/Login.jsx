@@ -11,7 +11,7 @@ const Login = () => {
   const [showDemoUsers, setShowDemoUsers] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
-  const { login, isAuthenticated, getDemoUsers } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const location = useLocation();
   
   // Redirect if already authenticated
@@ -40,11 +40,14 @@ const Login = () => {
 
   const handleDemoLogin = (demoEmail) => {
     setEmail(demoEmail);
-    setPassword('demo'); // Demo password
+    setPassword('Test123!'); // Use the real password we created
     setShowDemoUsers(false);
   };
 
-  const demoUsers = getDemoUsers();
+  // Demo users for testing
+  const demoUsers = [
+    { email: 'test@corvex.com', name: 'Test Employee', role: 'employee' }
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-['Space_Grotesk']">

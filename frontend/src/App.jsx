@@ -20,6 +20,7 @@ import Candidates from "./components/Candidates";
 import Holidays from "./components/Holidays";
 import Settings from "./components/Settings";
 import NotFound from "./components/NotFound";
+import AuthDebug from "./components/AuthDebug";
 // New imports for additional features
 import InterviewManagement from "./components/InterviewManagement";
 import InterviewScheduling from "./components/InterviewScheduling";
