@@ -18,6 +18,23 @@ import Candidates from "./components/Candidates";
 import Holidays from "./components/Holidays";
 import Settings from "./components/Settings";
 import NotFound from "./components/NotFound";
+// New imports for additional features
+import InterviewManagement from "./components/InterviewManagement";
+import InterviewScheduling from "./components/InterviewScheduling";
+import InterviewFeedback from "./components/InterviewFeedback";
+import InterviewAnalytics from "./components/InterviewAnalytics";
+import Onboarding from "./components/Onboarding";
+import Offboarding from "./components/Offboarding";
+import PerformanceManagement from "./components/PerformanceManagement";
+import TrainingDevelopment from "./components/TrainingDevelopment";
+import LeaveRequests from "./components/LeaveRequests";
+import Timesheet from "./components/Timesheet";
+import Projects from "./components/Projects";
+import Analytics from "./components/Analytics";
+import Reports from "./components/Reports";
+import HRInsights from "./components/HRInsights";
+import AssetManagement from "./components/AssetManagement";
+import LearningManagement from "./components/LearningManagement";
 
 function App() {
   return (
@@ -40,6 +57,41 @@ function App() {
         <Route path="/employee/:employeeId" element={<ViewEmployee />} />
         <Route path="/all-departments" element={<AllDepartments />} />
         <Route path="/department/:departmentId" element={<ViewDepartment />} />
+        
+        {/* Interview Management Routes */}
+        <Route path="/interview-management" element={<InterviewManagement />} />
+        <Route path="/interview-scheduling" element={<InterviewScheduling />} />
+        <Route path="/interview-feedback/:interviewId" element={<InterviewFeedback />} />
+        <Route path="/interview-analytics" element={<InterviewAnalytics />} />
+        
+        {/* Employee Lifecycle Routes */}
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/offboarding" element={<Offboarding />} />
+        
+        {/* Performance Management Routes */}
+        <Route path="/performance-management" element={<PerformanceManagement />} />
+        
+        {/* Training & Development Routes */}
+        <Route path="/training-development" element={<TrainingDevelopment />} />
+        
+        {/* Leave Management Routes */}
+        <Route path="/leave-requests" element={<LeaveRequests />} />
+        
+        {/* Time & Project Management Routes */}
+        <Route path="/timesheet" element={<Timesheet />} />
+        <Route path="/projects" element={<Projects />} />
+        
+        {/* Analytics & Reporting Routes */}
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/hr-insights" element={<HRInsights />} />
+        
+        {/* Asset Management Routes */}
+        <Route path="/asset-management" element={<AssetManagement />} />
+        
+        {/* Learning Management Routes */}
+        <Route path="/learning-management" element={<LearningManagement />} />
+        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
