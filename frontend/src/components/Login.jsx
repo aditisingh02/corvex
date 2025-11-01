@@ -1,27 +1,50 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "./ui/button";
+import React, { useState } from 'react';
+import { Navigate, useLocation, Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { Button } from './ui/button';
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showDemoUsers, setShowDemoUsers] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  
+  const { login, isAuthenticated, getDemoUsers } = useAuth();
+  const location = useLocation();
+  
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    const from = location.state?.from?.pathname || '/dashboard';
+    return <Navigate to={from} replace />;
+  }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
-    // Basic validation
-    if (!email || !password) {
-      alert("Please fill in all fields");
-      return;
+    const result = await login(email, password);
+    
+    if (result.success) {
+      // Redirect to intended page or dashboard
+      const from = location.state?.from?.pathname || '/dashboard';
+      window.location.href = from; // Force full page redirect to ensure context updates
+    } else {
+      setError(result.error);
     }
-
-    // Here you would typically validate credentials with your backend
-    // For now, we'll just redirect to dashboard
-    navigate("/dashboard");
+    
+    setIsLoading(false);
   };
+
+  const handleDemoLogin = (demoEmail) => {
+    setEmail(demoEmail);
+    setPassword('demo'); // Demo password
+    setShowDemoUsers(false);
+  };
+
+  const demoUsers = getDemoUsers();
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-['Space_Grotesk']">
@@ -29,9 +52,37 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-3/5 bg-white">
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="w-full max-w-2xl">
-            {/* You can add an illustration here */}
-            <div className="bg-gray-100 rounded-3xl h-[600px] flex items-center justify-center">
-              <span className="text-gray-400 text-lg">Illustration Area</span>
+            {/* Role-based access illustration */}
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl h-[600px] flex items-center justify-center p-8">
+              <div className="text-center space-y-6">
+                <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
+                  <svg className="w-12 h-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Role-Based HR System</h3>
+                  <p className="text-gray-600">Access features based on your role and permissions</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-8">
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-sm font-medium text-purple-600">Super Admin</div>
+                    <div className="text-xs text-gray-500">Full system access</div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-sm font-medium text-blue-600">HR Manager</div>
+                    <div className="text-xs text-gray-500">Employee management</div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-sm font-medium text-green-600">Manager</div>
+                    <div className="text-xs text-gray-500">Team oversight</div>
+                  </div>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <div className="text-sm font-medium text-orange-600">Employee</div>
+                    <div className="text-xs text-gray-500">Personal dashboard</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -62,7 +113,7 @@ const Login = () => {
             </Link>
             <div>
               <h2 className="text-xl font-medium text-black">Welcome 👋</h2>
-              <p className="text-gray-500 text-sm mt-1">Please login here</p>
+              <p className="text-gray-500 text-sm mt-1">Please login with your role</p>
             </div>
           </div>
 
@@ -81,7 +132,7 @@ const Login = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="aditikanagala@gmail.com"
+                placeholder="Enter your email"
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB] transition-colors"
                 required
               />
@@ -136,39 +187,93 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Remember Me and Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-[#5E17EB] border-gray-300 rounded focus:ring-[#5E17EB] focus:ring-2"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 text-sm text-gray-600"
-                >
-                  Remember Me
-                </label>
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <div className="flex">
+                  <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                  <p className="ml-3 text-sm text-red-800">{error}</p>
+                </div>
               </div>
-              <Link
-                to="/forgot-password"
-                className="text-sm text-[#5E17EB] hover:text-[#4A0EC9] transition-colors"
-              >
-                Forgot Password?
-              </Link>
-            </div>
+            )}
 
             {/* Login Button */}
             <Button
               type="submit"
-              className="w-full bg-[#5E17EB] hover:bg-[#4A0EC9] text-white py-3 px-4 rounded-xl font-medium transition-colors"
+              disabled={isLoading}
+              className="w-full bg-[#5E17EB] hover:bg-[#4A0EC9] text-white py-3 px-4 rounded-xl font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Login
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </div>
+              ) : (
+                'Login'
+              )}
             </Button>
           </form>
+
+          {/* Demo Users Section */}
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-3 bg-gray-50 text-gray-500">Try Different Roles</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowDemoUsers(!showDemoUsers)}
+              className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5E17EB] transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Demo Login Options
+              <svg 
+                className={`w-4 h-4 ml-2 transition-transform ${showDemoUsers ? 'rotate-180' : ''}`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showDemoUsers && (
+              <div className="space-y-2 bg-white border border-gray-200 rounded-xl p-4">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Choose a role to test:</h4>
+                {demoUsers.map((demoUser) => (
+                  <button
+                    key={demoUser.email}
+                    onClick={() => handleDemoLogin(demoUser.email)}
+                    className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-gray-900 group-hover:text-[#5E17EB]">
+                          {demoUser.name}
+                        </div>
+                        <div className="text-xs text-gray-500 capitalize mt-1">
+                          {demoUser.role.replace('_', ' ')}
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-400">{demoUser.email}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Sign Up Link */}
           <div className="text-center">

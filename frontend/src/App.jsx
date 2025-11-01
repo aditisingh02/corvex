@@ -1,5 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import LandingPage from "./components/LandingPage";
 import Login from "./components/Login";
 import SignUp from "./components/SignUp";
@@ -38,63 +40,198 @@ import LearningManagement from "./components/LearningManagement";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/enter-otp" element={<EnterOTP />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/attendance" element={<Attendance />} />
-        <Route path="/payroll" element={<Payroll />} />
-        <Route path="/jobs" element={<Jobs />} />
-        <Route path="/candidates" element={<Candidates />} />
-        <Route path="/holidays" element={<Holidays />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/all-employees" element={<AllEmployees />} />
-        <Route path="/add-employee" element={<AddNewEmployee />} />
-        <Route path="/employee/:employeeId" element={<ViewEmployee />} />
-        <Route path="/all-departments" element={<AllDepartments />} />
-        <Route path="/department/:departmentId" element={<ViewDepartment />} />
-        
-        {/* Interview Management Routes */}
-        <Route path="/interview-management" element={<InterviewManagement />} />
-        <Route path="/interview-scheduling" element={<InterviewScheduling />} />
-        <Route path="/interview-feedback/:interviewId" element={<InterviewFeedback />} />
-        <Route path="/interview-analytics" element={<InterviewAnalytics />} />
-        
-        {/* Employee Lifecycle Routes */}
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/offboarding" element={<Offboarding />} />
-        
-        {/* Performance Management Routes */}
-        <Route path="/performance-management" element={<PerformanceManagement />} />
-        
-        {/* Training & Development Routes */}
-        <Route path="/training-development" element={<TrainingDevelopment />} />
-        
-        {/* Leave Management Routes */}
-        <Route path="/leave-requests" element={<LeaveRequests />} />
-        
-        {/* Time & Project Management Routes */}
-        <Route path="/timesheet" element={<Timesheet />} />
-        <Route path="/projects" element={<Projects />} />
-        
-        {/* Analytics & Reporting Routes */}
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/reports" element={<Reports />} />
-        <Route path="/hr-insights" element={<HRInsights />} />
-        
-        {/* Asset Management Routes */}
-        <Route path="/asset-management" element={<AssetManagement />} />
-        
-        {/* Learning Management Routes */}
-        <Route path="/learning-management" element={<LearningManagement />} />
-        
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/enter-otp" element={<EnterOTP />} />
+          
+          {/* Protected Routes */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/attendance" element={
+            <ProtectedRoute requiredPermission="view_attendance">
+              <Attendance />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/payroll" element={
+            <ProtectedRoute requiredPermission="view_payroll">
+              <Payroll />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/jobs" element={
+            <ProtectedRoute requiredPermission="view_jobs">
+              <Jobs />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/candidates" element={
+            <ProtectedRoute requiredPermission="view_candidates">
+              <Candidates />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/holidays" element={
+            <ProtectedRoute requiredPermission="view_holidays">
+              <Holidays />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/settings" element={
+            <ProtectedRoute requiredPermission="view_settings">
+              <Settings />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/all-employees" element={
+            <ProtectedRoute requiredPermission="view_employees">
+              <AllEmployees />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/add-employee" element={
+            <ProtectedRoute requiredPermission="add_employee">
+              <AddNewEmployee />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/employee/:employeeId" element={
+            <ProtectedRoute requiredPermission="view_employee_details">
+              <ViewEmployee />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/all-departments" element={
+            <ProtectedRoute requiredPermission="view_departments">
+              <AllDepartments />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/department/:departmentId" element={
+            <ProtectedRoute requiredPermission="view_department_details">
+              <ViewDepartment />
+            </ProtectedRoute>
+          } />
+          
+          {/* Interview Management Routes */}
+          <Route path="/interview-management" element={
+            <ProtectedRoute requiredPermission="manage_interviews">
+              <InterviewManagement />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/interview-scheduling" element={
+            <ProtectedRoute requiredPermission="schedule_interviews">
+              <InterviewScheduling />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/interview-feedback/:interviewId" element={
+            <ProtectedRoute requiredPermission="provide_interview_feedback">
+              <InterviewFeedback />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/interview-analytics" element={
+            <ProtectedRoute requiredPermission="view_interview_analytics">
+              <InterviewAnalytics />
+            </ProtectedRoute>
+          } />
+          
+          {/* Employee Lifecycle Routes */}
+          <Route path="/onboarding" element={
+            <ProtectedRoute requiredPermission="manage_onboarding">
+              <Onboarding />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/offboarding" element={
+            <ProtectedRoute requiredPermission="manage_offboarding">
+              <Offboarding />
+            </ProtectedRoute>
+          } />
+          
+          {/* Performance Management Routes */}
+          <Route path="/performance-management" element={
+            <ProtectedRoute requiredPermission="manage_performance">
+              <PerformanceManagement />
+            </ProtectedRoute>
+          } />
+          
+          {/* Training & Development Routes */}
+          <Route path="/training-development" element={
+            <ProtectedRoute requiredPermission="manage_training">
+              <TrainingDevelopment />
+            </ProtectedRoute>
+          } />
+          
+          {/* Leave Management Routes */}
+          <Route path="/leave-requests" element={
+            <ProtectedRoute requiredPermission="view_leave_requests">
+              <LeaveRequests />
+            </ProtectedRoute>
+          } />
+          
+          {/* Time & Project Management Routes */}
+          <Route path="/timesheet" element={
+            <ProtectedRoute requiredPermission="view_timesheet">
+              <Timesheet />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/projects" element={
+            <ProtectedRoute requiredPermission="view_projects">
+              <Projects />
+            </ProtectedRoute>
+          } />
+          
+          {/* Analytics & Reporting Routes */}
+          <Route path="/analytics" element={
+            <ProtectedRoute requiredPermission="view_analytics">
+              <Analytics />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/reports" element={
+            <ProtectedRoute requiredPermission="generate_reports">
+              <Reports />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/hr-insights" element={
+            <ProtectedRoute requiredPermission="view_hr_insights">
+              <HRInsights />
+            </ProtectedRoute>
+          } />
+          
+          {/* Asset Management Routes */}
+          <Route path="/asset-management" element={
+            <ProtectedRoute requiredPermission="manage_assets">
+              <AssetManagement />
+            </ProtectedRoute>
+          } />
+          
+          {/* Learning Management Routes */}
+          <Route path="/learning-management" element={
+            <ProtectedRoute requiredPermission="manage_learning">
+              <LearningManagement />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
