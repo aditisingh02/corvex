@@ -238,26 +238,46 @@ const AddNewEmployee = () => {
     // Personal Information
     firstName: "",
     lastName: "",
+    middleName: "",
     mobileNumber: "",
     emailAddress: "",
     dateOfBirth: "",
-    maritalStatus: "",
+    maritalStatus: "single",
     gender: "",
     nationality: "",
+    
+    // Address Information
     address: "",
     city: "",
     state: "",
     pinCode: "",
+    country: "",
+
+    // Emergency Contact
+    emergencyContactName: "",
+    emergencyContactRelationship: "",
+    emergencyContactPhone: "",
 
     // Professional Information
     username: "",
     department: "",
     designation: "",
+    level: "",
+    manager: "",
     joiningDate: "",
-    employmentType: "",
-    workLocation: "",
-    workingDays: "",
+    probationEndDate: "",
+    employmentType: "full_time",
+    workLocation: "office",
+    shift: "day",
+    
+    // Compensation
     salary: "",
+    salaryCurrency: "USD",
+    salaryFrequency: "yearly",
+    benefits: [],
+    bonusAmount: "",
+    bonusType: "",
+    bonusYear: "",
 
     // Documents
     appointmentLetter: null,
@@ -265,7 +285,7 @@ const AddNewEmployee = () => {
     relievingLetter: null,
     experienceLetter: null,
 
-        // Account Access
+    // Account Access
     enterSlackId: "",
     enterSkypeId: "",
     enterGoogleHangoutId: "",
@@ -542,6 +562,21 @@ const AddNewEmployee = () => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
+            Middle Name
+          </label>
+          <input
+            type="text"
+            value={formData.middleName}
+            onChange={(e) => handleInputChange("middleName", e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+            placeholder="Enter middle name (optional)"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             Mobile Number *
           </label>
           <input
@@ -697,6 +732,76 @@ const AddNewEmployee = () => {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
             placeholder="Enter 6-digit pin code"
           />
+        </div>
+      </div>
+
+      {/* Emergency Contact Information */}
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-red-800 mb-4">Emergency Contact Information</h3>
+        
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Emergency Contact Name *
+            </label>
+            <input
+              type="text"
+              value={formData.emergencyContact?.name || ''}
+              onChange={(e) => handleInputChange("emergencyContact", { ...formData.emergencyContact, name: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter emergency contact name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Relationship *
+            </label>
+            <select
+              value={formData.emergencyContact?.relationship || ''}
+              onChange={(e) => handleInputChange("emergencyContact", { ...formData.emergencyContact, relationship: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+            >
+              <option value="">Select relationship</option>
+              <option value="Parent">Parent</option>
+              <option value="Spouse">Spouse</option>
+              <option value="Sibling">Sibling</option>
+              <option value="Friend">Friend</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Emergency Contact Phone *
+            </label>
+            <input
+              type="tel"
+              value={formData.emergencyContact?.phone || ''}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                if (value.length <= 10) {
+                  handleInputChange("emergencyContact", { ...formData.emergencyContact, phone: value });
+                }
+              }}
+              maxLength={10}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter 10-digit phone number"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Emergency Contact Email
+            </label>
+            <input
+              type="email"
+              value={formData.emergencyContact?.email || ''}
+              onChange={(e) => handleInputChange("emergencyContact", { ...formData.emergencyContact, email: e.target.value })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter emergency contact email (optional)"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -864,6 +969,149 @@ const AddNewEmployee = () => {
             min="0"
             step="1000"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Level *
+          </label>
+          <select
+            value={formData.level}
+            onChange={(e) => handleInputChange("level", e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+          >
+            <option value="">Select level</option>
+            <option value="Junior">Junior</option>
+            <option value="Senior">Senior</option>
+            <option value="Lead">Lead</option>
+            <option value="Manager">Manager</option>
+            <option value="Senior Manager">Senior Manager</option>
+            <option value="Director">Director</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Manager
+          </label>
+          <select
+            value={formData.manager}
+            onChange={(e) => handleInputChange("manager", e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+          >
+            <option value="">Select manager (optional)</option>
+            {/* Note: In a real implementation, this would be populated with existing employees */}
+            <option value="none">No Manager</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Probation End Date
+          </label>
+          <input
+            type="date"
+            value={formData.probationEndDate}
+            onChange={(e) => handleInputChange("probationEndDate", e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+          />
+        </div>
+      </div>
+
+      {/* Compensation Details */}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-green-800 mb-4">Compensation Details</h3>
+        
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Base Salary *
+            </label>
+            <input
+              type="number"
+              value={formData.compensation?.baseSalary || ''}
+              onChange={(e) => handleInputChange("compensation", { ...formData.compensation, baseSalary: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter base salary"
+              min="0"
+              step="1000"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              HRA
+            </label>
+            <input
+              type="number"
+              value={formData.compensation?.hra || ''}
+              onChange={(e) => handleInputChange("compensation", { ...formData.compensation, hra: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter HRA amount"
+              min="0"
+              step="500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Transport Allowance
+            </label>
+            <input
+              type="number"
+              value={formData.compensation?.transportAllowance || ''}
+              onChange={(e) => handleInputChange("compensation", { ...formData.compensation, transportAllowance: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter transport allowance"
+              min="0"
+              step="100"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Medical Allowance
+            </label>
+            <input
+              type="number"
+              value={formData.compensation?.medicalAllowance || ''}
+              onChange={(e) => handleInputChange("compensation", { ...formData.compensation, medicalAllowance: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter medical allowance"
+              min="0"
+              step="100"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Other Allowances
+            </label>
+            <input
+              type="number"
+              value={formData.compensation?.otherAllowances || ''}
+              onChange={(e) => handleInputChange("compensation", { ...formData.compensation, otherAllowances: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter other allowances"
+              min="0"
+              step="100"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              PF Contribution
+            </label>
+            <input
+              type="number"
+              value={formData.compensation?.pfContribution || ''}
+              onChange={(e) => handleInputChange("compensation", { ...formData.compensation, pfContribution: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5E17EB] focus:border-[#5E17EB]"
+              placeholder="Enter PF contribution"
+              min="0"
+              step="100"
+            />
+          </div>
         </div>
       </div>
 

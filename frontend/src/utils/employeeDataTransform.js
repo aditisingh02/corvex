@@ -15,6 +15,7 @@ export const transformFormDataToEmployee = (formData) => {
     // No employeeId - let backend auto-generate it completely
     personalInfo: {
       firstName: formData.firstName?.trim(),
+      middleName: formData.middleName?.trim() || '',
       lastName: formData.lastName?.trim(),
       phone: formData.mobileNumber,
       dateOfBirth: formData.dateOfBirth,
@@ -22,9 +23,10 @@ export const transformFormDataToEmployee = (formData) => {
       maritalStatus: formData.maritalStatus || 'single',
       nationality: formData.nationality,
       emergencyContact: {
-        name: formData.emergencyContactName || 'Emergency Contact',
-        relationship: formData.emergencyContactRelationship || 'Family',
-        phone: formData.emergencyContactPhone || formData.mobileNumber
+        name: formData.emergencyContact?.name || 'Emergency Contact',
+        relationship: formData.emergencyContact?.relationship || 'Family',
+        phone: formData.emergencyContact?.phone || formData.mobileNumber,
+        email: formData.emergencyContact?.email || ''
       },
       address: {
         street: formData.address,
@@ -38,7 +40,9 @@ export const transformFormDataToEmployee = (formData) => {
       department: formData.department,
       position: formData.designation,
       level: formData.level || 'junior',
+      manager: formData.manager || null,
       hireDate: formData.joiningDate,
+      probationEndDate: formData.probationEndDate || null,
       employmentType: formData.employmentType,
       workLocation: formData.workLocation
     },
@@ -47,7 +51,13 @@ export const transformFormDataToEmployee = (formData) => {
         amount: parseFloat(formData.salary) || 0,
         currency: 'USD',
         frequency: 'yearly'
-      }
+      },
+      baseSalary: formData.compensation?.baseSalary || parseFloat(formData.salary) || 0,
+      hra: formData.compensation?.hra || 0,
+      transportAllowance: formData.compensation?.transportAllowance || 0,
+      medicalAllowance: formData.compensation?.medicalAllowance || 0,
+      otherAllowances: formData.compensation?.otherAllowances || 0,
+      pfContribution: formData.compensation?.pfContribution || 0
     },
     status: 'active'
   };
@@ -135,12 +145,26 @@ export const validateEmployeeFormData = (formData) => {
     errors.push('Nationality is required');
   }
 
+  // Emergency Contact Validation
+  if (!formData.emergencyContact?.name?.trim()) {
+    errors.push('Emergency contact name is required');
+  }
+  if (!formData.emergencyContact?.relationship) {
+    errors.push('Emergency contact relationship is required');
+  }
+  if (!formData.emergencyContact?.phone?.trim()) {
+    errors.push('Emergency contact phone is required');
+  }
+
   // Job Information Validation
   if (!formData.department) {
     errors.push('Department is required');
   }
   if (!formData.designation?.trim()) {
     errors.push('Designation/Position is required');
+  }
+  if (!formData.level) {
+    errors.push('Level is required');
   }
   if (!formData.joiningDate) {
     errors.push('Joining date is required');
@@ -153,6 +177,11 @@ export const validateEmployeeFormData = (formData) => {
   }
   if (!formData.salary || parseFloat(formData.salary) <= 0) {
     errors.push('Valid salary amount is required');
+  }
+
+  // Compensation Validation
+  if (!formData.compensation?.baseSalary || parseFloat(formData.compensation.baseSalary) <= 0) {
+    errors.push('Valid base salary is required');
   }
 
   return {

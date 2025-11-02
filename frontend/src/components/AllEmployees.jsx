@@ -152,8 +152,7 @@ const AllEmployees = () => {
 
   // Handle view employee details
   const handleViewEmployee = (employee) => {
-    setSelectedEmployee(employee);
-    setShowEmployeeDetails(true);
+    navigate(`/employee/${employee._id}`);
   };
 
   // Handle employee added
