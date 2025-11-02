@@ -1,21 +1,33 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const Header = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    // Clear any stored user data (localStorage, sessionStorage, etc.)
-    localStorage.removeItem("userToken");
-    localStorage.removeItem("userData");
-    sessionStorage.clear();
-
-    // Close dropdown
-    setShowProfileDropdown(false);
-
-    // Redirect to login page
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // Close dropdown first
+      setShowProfileDropdown(false);
+      
+      // Call the logout function from AuthContext
+      const result = await logout();
+      
+      if (result.success) {
+        // Redirect to login page after successful logout
+        navigate("/login");
+      } else {
+        console.error("Logout failed:", result.error);
+        // Still redirect to login even if logout fails
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Still redirect to login even if logout fails
+      navigate("/login");
+    }
   };
 
   return (
