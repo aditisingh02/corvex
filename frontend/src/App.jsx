@@ -17,6 +17,9 @@ import Attendance from "./components/Attendance";
 import Payroll from "./components/Payroll";
 import Jobs from "./components/Jobs";
 import Candidates from "./components/Candidates";
+import AddCandidate from "./components/AddCandidate";
+import ViewCandidate from "./components/ViewCandidate";
+import EditCandidate from "./components/EditCandidate";
 import Holidays from "./components/Holidays";
 import Settings from "./components/Settings";
 import NotFound from "./components/NotFound";
@@ -77,6 +80,24 @@ function App() {
           <Route path="/candidates" element={
             <ProtectedRoute requiredPermission="view_candidates">
               <Candidates />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/add-candidate" element={
+            <ProtectedRoute requiredPermission="add_candidate">
+              <AddCandidate />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/candidate/:id" element={
+            <ProtectedRoute requiredPermission="view_candidate_details">
+              <ViewCandidate />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/edit-candidate/:id" element={
+            <ProtectedRoute requiredPermission="edit_candidate">
+              <EditCandidate />
             </ProtectedRoute>
           } />
           

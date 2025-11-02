@@ -1,103 +1,128 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { interviewService, interviewUtils } from "../services/interviewService";
 
 const InterviewManagement = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pipeline");
+  const [interviews, setInterviews] = useState([]);
+  const [statistics, setStatistics] = useState({
+    overview: [],
+    stages: [],
+    upcomingInterviews: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Mock interview data
-  const interviews = [
-    {
-      id: 1,
-      candidateName: "Sarah Johnson",
-      position: "Senior Frontend Developer",
-      stage: "Technical",
-      date: "2025-11-05",
-      time: "10:00 AM",
-      interviewer: "John Smith",
-      status: "scheduled",
-      score: null,
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b619?w=40&h=40&fit=crop&crop=face"
-    },
-    {
-      id: 2,
-      candidateName: "Michael Chen",
-      position: "Backend Developer",
-      stage: "HR Round",
-      date: "2025-11-03",
-      time: "2:00 PM",
-      interviewer: "Lisa Wong",
-      status: "completed",
-      score: 8.5,
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face"
-    },
-    {
-      id: 3,
-      candidateName: "Emily Davis",
-      position: "UX Designer",
-      stage: "Portfolio Review",
-      date: "2025-11-04",
-      time: "3:30 PM",
-      interviewer: "Alex Kumar",
-      status: "in-progress",
-      score: null,
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face"
-    },
-    {
-      id: 4,
-      candidateName: "David Rodriguez",
-      position: "Data Scientist",
-      stage: "Technical",
-      date: "2025-11-06",
-      time: "11:00 AM",
-      interviewer: "Priya Sharma",
-      status: "scheduled",
-      score: null,
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face"
+  useEffect(() => {
+    fetchData();
+  }, [activeTab]);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      const [interviewsResponse, statisticsResponse] = await Promise.all([
+        fetchInterviewsByTab(),
+        interviewService.getStatistics()
+      ]);
+
+      setInterviews(interviewsResponse.data || []);
+      setStatistics(statisticsResponse.data || {
+        overview: [],
+        stages: [],
+        upcomingInterviews: 0
+      });
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('Failed to load interview data. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  const fetchInterviewsByTab = async () => {
+    const params = { limit: 50 };
+    
+    switch (activeTab) {
+      case "upcoming":
+        return await interviewService.getInterviewsByStatus("scheduled", params);
+      case "completed":
+        return await interviewService.getInterviewsByStatus("completed", params);
+      case "pipeline":
+      default:
+        return await interviewService.getAllInterviews(params);
+    }
+  };
+
+  const handleCancelInterview = async (interviewId) => {
+    const reason = prompt("Please provide a reason for cancellation:");
+    if (!reason) return;
+
+    try {
+      await interviewService.cancelInterview(interviewId, reason);
+      fetchData(); // Refresh data
+      alert("Interview cancelled successfully");
+    } catch (error) {
+      console.error('Error cancelling interview:', error);
+      alert("Failed to cancel interview. Please try again.");
+    }
+  };
+
+  const handleRescheduleInterview = (interviewId) => {
+    // In a real app, you might open a modal or navigate to a reschedule page
+    navigate(`/interview-scheduling?reschedule=${interviewId}`);
+  };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "scheduled":
-        return "bg-blue-100 text-blue-800";
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "in-progress":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+    return interviewUtils.getStatusColor(status);
   };
 
   const getStageColor = (stage) => {
-    switch (stage) {
-      case "Screening":
-        return "bg-purple-100 text-purple-800";
-      case "Technical":
-        return "bg-indigo-100 text-indigo-800";
-      case "HR Round":
-        return "bg-green-100 text-green-800";
-      case "Portfolio Review":
-        return "bg-orange-100 text-orange-800";
-      case "Final":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+    return interviewUtils.getStageColor(stage);
   };
 
-  const pipelineStats = [
-    { stage: "Applications", count: 45, color: "bg-blue-500" },
-    { stage: "Screening", count: 28, color: "bg-purple-500" },
-    { stage: "Technical", count: 15, color: "bg-indigo-500" },
-    { stage: "HR Round", count: 8, color: "bg-green-500" },
-    { stage: "Final", count: 3, color: "bg-red-500" }
-  ];
+  // Generate pipeline stats from statistics data
+  const pipelineStats = statistics.stages.map(stage => ({
+    stage: interviewUtils.formatStageName(stage._id),
+    count: stage.count,
+    color: getStageColorForStats(stage._id)
+  }));
+
+  const getStageColorForStats = (stage) => {
+    const colors = {
+      screening: "bg-purple-500",
+      technical: "bg-indigo-500", 
+      hr_round: "bg-green-500",
+      portfolio_review: "bg-orange-500",
+      final: "bg-red-500"
+    };
+    return colors[stage] || "bg-gray-500";
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen bg-gray-50">
+        <Sidebar />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#5E17EB] mx-auto"></div>
+                  <p className="mt-4 text-gray-600">Loading interviews...</p>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -128,6 +153,18 @@ const InterviewManagement = () => {
                   </button>
                 </div>
               </div>
+              
+              {error && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800">{error}</p>
+                  <button 
+                    onClick={fetchData}
+                    className="mt-2 text-red-600 hover:text-red-800 underline"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Tabs */}
@@ -169,7 +206,7 @@ const InterviewManagement = () => {
             </div>
 
             {/* Pipeline Overview */}
-            {activeTab === "pipeline" && (
+            {activeTab === "pipeline" && pipelineStats.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">Interview Pipeline</h2>
                 <div className="grid grid-cols-5 gap-4">
@@ -235,35 +272,39 @@ const InterviewManagement = () => {
                         return true;
                       })
                       .map((interview) => (
-                        <tr key={interview.id} className="hover:bg-gray-50">
+                        <tr key={interview._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <img
-                                className="h-10 w-10 rounded-full"
-                                src={interview.avatar}
-                                alt={interview.candidateName}
-                              />
+                              <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                <span className="text-sm font-medium text-gray-700">
+                                  {interview.candidate?.personalInfo?.firstName?.[0]}
+                                  {interview.candidate?.personalInfo?.lastName?.[0]}
+                                </span>
+                              </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">
-                                  {interview.candidateName}
+                                  {interview.candidate?.personalInfo?.firstName} {interview.candidate?.personalInfo?.lastName}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {interview.candidate?.personalInfo?.email}
                                 </div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {interview.position}
+                            {interview.interviewDetails?.position}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStageColor(interview.stage)}`}>
-                              {interview.stage}
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStageColor(interview.interviewDetails?.stage)}`}>
+                              {interviewUtils.formatStageName(interview.interviewDetails?.stage)}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <div>{interview.date}</div>
-                            <div className="text-gray-500">{interview.time}</div>
+                            <div>{new Date(interview.scheduling?.date).toLocaleDateString()}</div>
+                            <div className="text-gray-500">{interview.scheduling?.time}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {interview.interviewer}
+                            {interview.interviewer?.personalInfo?.firstName} {interview.interviewer?.personalInfo?.lastName}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(interview.status)}`}>
@@ -271,13 +312,13 @@ const InterviewManagement = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {interview.score ? `${interview.score}/10` : "-"}
+                            {interview.feedback?.overallRating ? `${interview.feedback.overallRating}/10` : "-"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-2">
                               {interview.status === "completed" && (
                                 <button
-                                  onClick={() => navigate(`/interview-feedback/${interview.id}`)}
+                                  onClick={() => navigate(`/interview-feedback/${interview._id}`)}
                                   className="text-[#5E17EB] hover:text-[#4A0E99]"
                                 >
                                   View Feedback
@@ -285,10 +326,16 @@ const InterviewManagement = () => {
                               )}
                               {interview.status === "scheduled" && (
                                 <>
-                                  <button className="text-blue-600 hover:text-blue-900">
-                                    Edit
+                                  <button 
+                                    onClick={() => handleRescheduleInterview(interview._id)}
+                                    className="text-blue-600 hover:text-blue-900"
+                                  >
+                                    Reschedule
                                   </button>
-                                  <button className="text-red-600 hover:text-red-900">
+                                  <button 
+                                    onClick={() => handleCancelInterview(interview._id)}
+                                    className="text-red-600 hover:text-red-900"
+                                  >
                                     Cancel
                                   </button>
                                 </>
@@ -297,6 +344,33 @@ const InterviewManagement = () => {
                           </td>
                         </tr>
                       ))}
+                    {interviews.length === 0 && (
+                      <tr>
+                        <td colSpan="8" className="px-6 py-12 text-center text-gray-500">
+                          <div>
+                            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <h3 className="mt-2 text-sm font-medium text-gray-900">No interviews</h3>
+                            <p className="mt-1 text-sm text-gray-500">
+                              {activeTab === "upcoming" && "No upcoming interviews scheduled."}
+                              {activeTab === "completed" && "No completed interviews found."}
+                              {activeTab === "pipeline" && "No interviews found. Schedule your first interview to get started."}
+                            </p>
+                            {activeTab === "pipeline" && (
+                              <div className="mt-6">
+                                <button
+                                  onClick={() => navigate("/interview-scheduling")}
+                                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#5E17EB] hover:bg-[#4A0E99]"
+                                >
+                                  Schedule Interview
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

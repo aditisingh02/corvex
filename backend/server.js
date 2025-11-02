@@ -23,6 +23,8 @@ const payrollRoutes = require('./src/routes/payroll');
 const performanceRoutes = require('./src/routes/performance');
 const trainingRoutes = require('./src/routes/training');
 const analyticsRoutes = require('./src/routes/analytics');
+const interviewRoutes = require('./src/routes/interviews');
+const candidateRoutes = require('./src/routes/candidates');
 
 // Import middleware
 const errorHandler = require('./src/middleware/errorHandler');
@@ -81,6 +83,8 @@ app.use('/api/payroll', payrollRoutes);
 app.use('/api/performance', performanceRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/interviews', interviewRoutes);
+app.use('/api/candidates', candidateRoutes);
 
 // 404 handler for undefined routes
 app.use('*', (req, res) => {

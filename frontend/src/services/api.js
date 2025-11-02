@@ -41,15 +41,47 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      console.log('Raw response status:', response.status);
+      console.log('Raw response ok:', response.ok);
+      console.log('Raw response headers:', [...response.headers.entries()]);
+      
+      // Try to parse JSON response
+      let data;
+      try {
+        data = await response.json();
+        console.log('Parsed response data:', data);
+      } catch (parseError) {
+        console.error('JSON parsing failed:', parseError);
+        // If JSON parsing fails, create a generic error object
+        data = { 
+          success: false, 
+          message: `Server responded with ${response.status}: ${response.statusText}` 
+        };
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        console.log('Response not OK. Status:', response.status);
+        console.log('Response data:', data);
+        const errorMessage = data.message || `HTTP error! status: ${response.status} - ${response.statusText}`;
+        console.error(`API Error [${response.status}]:`, errorMessage);
+        console.error('Request URL:', url);
+        console.error('Request config:', config);
+        throw new Error(errorMessage);
       }
 
       return data;
     } catch (error) {
       console.error('API Request failed:', error);
+      console.error('Request URL:', url);
+      console.error('Request config:', config);
+      
+      // If it's a network error
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Network error: Could not connect to the server. Please check if the backend is running.');
+      }
+      
+      // Re-throw the original error to preserve the message
       throw error;
     }
   }
