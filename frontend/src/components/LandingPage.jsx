@@ -131,7 +131,7 @@ function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-              {/* Effortless Onboarding */}
+              {/* Employee Management */}
               <div className="bg-[#F3F3F3] rounded-3xl p-8 border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-shadow duration-300 flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex flex-col items-start">
@@ -146,7 +146,7 @@ function LandingPage() {
                 <div className="flex justify-center">
                   <img
                     src={servicesIllus1}
-                    alt="Effortless Onboarding"
+                    alt="Employee Management"
                     className="w-40 h-36 object-contain"
                   />
                 </div>
@@ -315,9 +315,9 @@ function LandingPage() {
                 <div className="text-white">
                   <p className="text-gray-300 mb-6 leading-relaxed">
                     Fast-growing startup Innovatech overcame its chaotic, 
-                    manual onboarding process by implementing Corvex. Our platform centralized their employee data and 
+                    manual HR processes by implementing Corvex. Our platform centralized their employee data and 
                     automated workflows, creating a consistent and professional experience for new hires. This strategic 
-                    shift not only cut onboarding time by 50% but also saved their HR team 15 hours of administrative work weekly, 
+                    shift not only streamlined their operations by 50% but also saved their HR team 15 hours of administrative work weekly, 
                     allowing them to focus on scaling the company instead of managing paperwork.
 
 

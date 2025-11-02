@@ -80,11 +80,7 @@ export const PERMISSIONS = {
   // System Settings
   MANAGE_SETTINGS: 'manage_settings',
   MANAGE_HR_SETTINGS: 'manage_hr_settings',
-  VIEW_AUDIT_LOGS: 'view_audit_logs',
-  
-  // Onboarding/Offboarding
-  MANAGE_ONBOARDING: 'manage_onboarding',
-  MANAGE_OFFBOARDING: 'manage_offboarding'
+  VIEW_AUDIT_LOGS: 'view_audit_logs'
 };
 
 export const ROLE_PERMISSIONS = {
@@ -158,11 +154,7 @@ export const ROLE_PERMISSIONS = {
     
     // System Settings
     PERMISSIONS.MANAGE_HR_SETTINGS,
-    PERMISSIONS.VIEW_AUDIT_LOGS,
-    
-    // Onboarding/Offboarding
-    PERMISSIONS.MANAGE_ONBOARDING,
-    PERMISSIONS.MANAGE_OFFBOARDING
+    PERMISSIONS.VIEW_AUDIT_LOGS
   ],
   
   [USER_ROLES.HR_COORDINATOR]: [
@@ -200,9 +192,9 @@ export const ROLE_PERMISSIONS = {
     PERMISSIONS.SUBMIT_TIMESHEET,
     PERMISSIONS.VIEW_OWN_TIMESHEET,
     
-    // Onboarding/Offboarding
-    PERMISSIONS.MANAGE_ONBOARDING,
-    PERMISSIONS.MANAGE_OFFBOARDING
+    // Timesheets
+    PERMISSIONS.SUBMIT_TIMESHEET,
+    PERMISSIONS.VIEW_OWN_TIMESHEET
   ],
   
   [USER_ROLES.MANAGER]: [

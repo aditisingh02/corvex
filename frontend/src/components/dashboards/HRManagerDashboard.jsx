@@ -69,10 +69,10 @@ const HRManagerDashboard = () => {
   const hrActivities = [
     {
       id: 1,
-      action: "New employee onboarded",
+      action: "New employee started",
       employee: "Sarah Johnson - Marketing",
       time: "2 hours ago",
-      type: "onboarding",
+      type: "hiring",
       icon: "🎉"
     },
     {
@@ -201,7 +201,7 @@ const HRManagerDashboard = () => {
                     <p className="text-xs text-gray-500">{activity.employee} • {activity.time}</p>
                   </div>
                   <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    activity.type === 'onboarding' ? 'bg-green-100 text-green-800' :
+                    activity.type === 'hiring' ? 'bg-green-100 text-green-800' :
                     activity.type === 'performance' ? 'bg-blue-100 text-blue-800' :
                     activity.type === 'leave' ? 'bg-orange-100 text-orange-800' :
                     activity.type === 'interview' ? 'bg-purple-100 text-purple-800' :

@@ -55,7 +55,7 @@ const Footer = () => {
               <h4 className="text-lg font-semibold text-white">Services</h4>
               <div className="space-y-3">
                 <p className="text-gray-300 text-sm hover:text-white transition-colors cursor-pointer">
-                  Effortless Onboarding
+                  Seamless HR Operations
                 </p>
                 <p className="text-gray-300 text-sm hover:text-white transition-colors cursor-pointer">
                   Payroll & Compliance

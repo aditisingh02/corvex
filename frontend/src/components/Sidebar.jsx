@@ -50,28 +50,6 @@ const Sidebar = () => {
           path: "/all-departments",
           requiredPermission: PERMISSIONS.VIEW_ALL_DEPARTMENTS
         },
-        {
-          id: "onboarding",
-          label: "Onboarding",
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
-          ),
-          path: "/onboarding",
-          requiredPermission: PERMISSIONS.MANAGE_ONBOARDING
-        },
-        {
-          id: "offboarding",
-          label: "Offboarding",
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
-            </svg>
-          ),
-          path: "/offboarding",
-          requiredPermission: PERMISSIONS.MANAGE_OFFBOARDING
-        }
       ]
     },
     {

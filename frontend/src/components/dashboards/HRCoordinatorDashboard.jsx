@@ -72,7 +72,7 @@ const HRCoordinatorDashboard = () => {
       priority: "high",
       dueTime: "10:00 AM",
       completed: false,
-      category: "onboarding"
+      category: "documents"
     },
     {
       id: 2,
@@ -96,7 +96,7 @@ const HRCoordinatorDashboard = () => {
       priority: "medium",
       dueTime: "5:00 PM",
       completed: false,
-      category: "offboarding"
+      category: "interviews"
     },
     {
       id: 5,
@@ -168,7 +168,7 @@ const HRCoordinatorDashboard = () => {
     },
     {
       id: 4,
-      action: "Scheduled onboarding session",
+      action: "Scheduled orientation session",
       employee: "Mark Johnson",
       time: "3 hours ago",
       type: "schedule",

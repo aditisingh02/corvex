@@ -74,7 +74,7 @@ const Reports = () => {
     { name: 'Employee Directory', description: 'Complete list of all employees with contact information' },
     { name: 'Organizational Chart', description: 'Hierarchical structure of the organization' },
     { name: 'Department Wise Analysis', description: 'Employee distribution across departments' },
-    { name: 'New Hires Report', description: 'Recently joined employees and onboarding status' },
+    { name: 'New Hires Report', description: 'Recently joined employees and orientation status' },
     { name: 'Employee Turnover', description: 'Attrition analysis and exit interview data' },
     { name: 'Birthday & Anniversary Report', description: 'Upcoming birthdays and work anniversaries' }
   ];

@@ -26,8 +26,6 @@ import InterviewManagement from "./components/InterviewManagement";
 import InterviewScheduling from "./components/InterviewScheduling";
 import InterviewFeedback from "./components/InterviewFeedback";
 import InterviewAnalytics from "./components/InterviewAnalytics";
-import Onboarding from "./components/Onboarding";
-import Offboarding from "./components/Offboarding";
 import PerformanceManagement from "./components/PerformanceManagement";
 import TrainingDevelopment from "./components/TrainingDevelopment";
 import LeaveRequests from "./components/LeaveRequests";
@@ -146,19 +144,6 @@ function App() {
           <Route path="/interview-analytics" element={
             <ProtectedRoute requiredPermission="view_interview_analytics">
               <InterviewAnalytics />
-            </ProtectedRoute>
-          } />
-          
-          {/* Employee Lifecycle Routes */}
-          <Route path="/onboarding" element={
-            <ProtectedRoute requiredPermission="manage_onboarding">
-              <Onboarding />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/offboarding" element={
-            <ProtectedRoute requiredPermission="manage_offboarding">
-              <Offboarding />
             </ProtectedRoute>
           } />
           
