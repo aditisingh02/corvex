@@ -1,19 +1,119 @@
 const Employee = require('../models/Employee');
+const Payroll = require('../models/Payroll');
 
-// @desc    Calculate payroll for employee
-// @route   POST /api/payroll/calculate
+// @desc    Get all payrolls (for HR dashboard)
+// @route   GET /api/payroll
 // @access  Private (HR roles)
-const calculatePayroll = async (req, res, next) => {
+const getAllPayrolls = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      search = '',
+      status = 'all',
+      month,
+      year
+    } = req.query;
+
+    // Build filter object
+    let filter = { isActive: true };
+
+    // Add status filter
+    if (status !== 'all') {
+      filter.status = status;
+    }
+
+    // Add date filter
+    if (month && year) {
+      filter['payPeriod.month'] = parseInt(month);
+      filter['payPeriod.year'] = parseInt(year);
+    }
+
+    // Get payrolls with employee details
+    const query = Payroll.find(filter)
+      .populate({
+        path: 'employee',
+        select: 'employeeId personalInfo jobInfo department',
+        populate: {
+          path: 'department',
+          select: 'name'
+        }
+      })
+      .populate('createdBy', 'name email')
+      .populate('approvedBy', 'name email')
+      .sort({ createdAt: -1 });
+
+    // Apply search filter after population
+    let payrolls = await query;
+
+    if (search) {
+      payrolls = payrolls.filter(payroll => {
+        const employee = payroll.employee;
+        if (!employee) return false;
+        
+        const fullName = `${employee.personalInfo.firstName} ${employee.personalInfo.lastName}`.toLowerCase();
+        const employeeId = employee.employeeId.toLowerCase();
+        const searchTerm = search.toLowerCase();
+        
+        return fullName.includes(searchTerm) || employeeId.includes(searchTerm);
+      });
+    }
+
+    // Apply pagination
+    const total = payrolls.length;
+    const pages = Math.ceil(total / limit);
+    const skip = (page - 1) * limit;
+    const paginatedPayrolls = payrolls.slice(skip, skip + parseInt(limit));
+
+    // Format response data
+    const formattedPayrolls = paginatedPayrolls.map(payroll => ({
+      _id: payroll._id,
+      employeeId: payroll.employee?.employeeId || 'N/A',
+      employeeName: payroll.employee ? 
+        `${payroll.employee.personalInfo.firstName} ${payroll.employee.personalInfo.lastName}` : 'N/A',
+      employeeAvatar: payroll.employee?.personalInfo.profilePicture,
+      department: payroll.employee?.department?.name || 'N/A',
+      basicSalary: payroll.salary.basicSalary,
+      allowances: payroll.salary.allowances.total,
+      deductions: payroll.salary.deductions.total,
+      grossSalary: payroll.salary.grossSalary,
+      netSalary: payroll.salary.netSalary,
+      status: payroll.status,
+      payPeriod: payroll.payPeriodDisplay,
+      payPeriodMonth: payroll.payPeriod.month,
+      payPeriodYear: payroll.payPeriod.year,
+      createdAt: payroll.createdAt,
+      updatedAt: payroll.updatedAt
+    }));
+
+    res.status(200).json({
+      success: true,
+      message: 'Payroll data retrieved successfully',
+      count: formattedPayrolls.length,
+      total: total,
+      page: parseInt(page),
+      pages: pages,
+      data: formattedPayrolls
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Create new payroll record
+// @route   POST /api/payroll
+// @access  Private (HR roles)
+const createPayroll = async (req, res, next) => {
   try {
     const {
       employeeId,
-      payPeriodStart,
-      payPeriodEnd,
-      bonuses = [],
-      deductions = [],
-      overtime = 0
+      payPeriod,
+      salary,
+      attendance,
+      notes
     } = req.body;
 
+    // Check if employee exists
     const employee = await Employee.findById(employeeId);
     if (!employee) {
       return res.status(404).json({
@@ -22,127 +122,244 @@ const calculatePayroll = async (req, res, next) => {
       });
     }
 
-    const salary = employee.jobInfo.salary;
-    const payType = employee.jobInfo.payType || 'monthly';
+    // Check if payroll already exists for this period
+    const existingPayroll = await Payroll.findOne({
+      employee: employeeId,
+      'payPeriod.month': payPeriod.month,
+      'payPeriod.year': payPeriod.year,
+      isActive: true
+    });
 
-    // Calculate base pay
-    let basePay = 0;
-    if (payType === 'monthly') {
-      basePay = salary;
-    } else if (payType === 'hourly') {
-      // Assume 160 hours per month for hourly employees
-      const hoursWorked = 160; // This should come from attendance data
-      basePay = salary * hoursWorked;
-    } else if (payType === 'annual') {
-      basePay = salary / 12;
+    if (existingPayroll) {
+      return res.status(400).json({
+        success: false,
+        message: 'Payroll record already exists for this employee and period'
+      });
     }
 
-    // Calculate overtime pay (1.5x regular rate)
-    const overtimePay = payType === 'hourly' ? (salary * 1.5 * overtime) : 0;
+    // Create payroll record
+    const payroll = await Payroll.create({
+      employee: employeeId,
+      payPeriod,
+      salary,
+      attendance,
+      notes,
+      createdBy: req.user.id,
+      status: 'draft'
+    });
 
-    // Calculate total bonuses
-    const totalBonuses = bonuses.reduce((sum, bonus) => sum + (bonus.amount || 0), 0);
+    // Populate employee details
+    await payroll.populate({
+      path: 'employee',
+      select: 'employeeId personalInfo department',
+      populate: {
+        path: 'department',
+        select: 'name'
+      }
+    });
 
-    // Calculate total deductions
-    const totalDeductions = deductions.reduce((sum, deduction) => sum + (deduction.amount || 0), 0);
-
-    // Calculate taxes (simplified - should integrate with tax calculation service)
-    const federalTaxRate = 0.12; // 12%
-    const stateTaxRate = 0.05; // 5%
-    const socialSecurityRate = 0.062; // 6.2%
-    const medicareRate = 0.0145; // 1.45%
-
-    const grossPay = basePay + overtimePay + totalBonuses;
-    
-    const federalTax = grossPay * federalTaxRate;
-    const stateTax = grossPay * stateTaxRate;
-    const socialSecurity = grossPay * socialSecurityRate;
-    const medicare = grossPay * medicareRate;
-    
-    const totalTaxes = federalTax + stateTax + socialSecurity + medicare;
-    const netPay = grossPay - totalTaxes - totalDeductions;
-
-    const payrollData = {
-      employee: {
-        id: employee._id,
-        name: `${employee.personalInfo.firstName} ${employee.personalInfo.lastName}`,
-        employeeId: employee.employeeId,
-        department: employee.department
-      },
-      payPeriod: {
-        start: new Date(payPeriodStart),
-        end: new Date(payPeriodEnd)
-      },
-      earnings: {
-        basePay,
-        overtime: overtimePay,
-        bonuses: totalBonuses,
-        grossPay
-      },
-      deductions: {
-        federalTax,
-        stateTax,
-        socialSecurity,
-        medicare,
-        other: totalDeductions,
-        totalTaxes,
-        totalDeductions: totalTaxes + totalDeductions
-      },
-      netPay,
-      bonusDetails: bonuses,
-      deductionDetails: deductions,
-      calculatedAt: new Date()
-    };
-
-    res.status(200).json({
+    res.status(201).json({
       success: true,
-      message: 'Payroll calculated successfully',
-      data: payrollData
+      message: 'Payroll record created successfully',
+      data: payroll
     });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Get payroll history
-// @route   GET /api/payroll/history
-// @access  Private
-const getPayrollHistory = async (req, res, next) => {
+// @desc    Get single payroll record
+// @route   GET /api/payroll/:id
+// @access  Private (HR roles)
+const getPayroll = async (req, res, next) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      employeeId,
-      startDate,
-      endDate
-    } = req.query;
+    const { id } = req.params;
 
-    let filter = {};
+    const payroll = await Payroll.findById(id)
+      .populate({
+        path: 'employee',
+        select: 'employeeId personalInfo jobInfo department',
+        populate: {
+          path: 'department',
+          select: 'name'
+        }
+      })
+      .populate('createdBy', 'name email')
+      .populate('approvedBy', 'name email');
 
-    // If not admin/hr, only show own payroll
-    if (!['super_admin', 'hr_manager', 'hr_coordinator'].includes(req.user.role)) {
-      const employee = await Employee.findOne({ user: req.user.id });
-      if (employee) {
-        filter.employeeId = employee._id;
-      }
-    } else if (employeeId) {
-      filter.employeeId = employeeId;
+    if (!payroll) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payroll record not found'
+      });
     }
 
-    // Note: This is a simplified implementation
-    // In a real application, you would store payroll records in a separate collection
-    // For now, we'll return mock data based on the filter
-    
-    const mockPayrollData = [];
-    
     res.status(200).json({
       success: true,
-      message: 'Payroll history retrieved successfully',
-      count: mockPayrollData.length,
-      total: mockPayrollData.length,
-      page: parseInt(page),
-      pages: Math.ceil(mockPayrollData.length / limit),
-      data: mockPayrollData
+      message: 'Payroll record retrieved successfully',
+      data: payroll
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update payroll record
+// @route   PUT /api/payroll/:id
+// @access  Private (HR roles)
+const updatePayroll = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    const payroll = await Payroll.findById(id);
+    if (!payroll) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payroll record not found'
+      });
+    }
+
+    // Don't allow updates to paid payrolls
+    if (payroll.status === 'paid') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot update paid payroll records'
+      });
+    }
+
+    // Update the payroll
+    Object.assign(payroll, updates);
+    await payroll.save();
+
+    // Populate employee details
+    await payroll.populate({
+      path: 'employee',
+      select: 'employeeId personalInfo department',
+      populate: {
+        path: 'department',
+        select: 'name'
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Payroll record updated successfully',
+      data: payroll
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete payroll record
+// @route   DELETE /api/payroll/:id
+// @access  Private (HR roles)
+const deletePayroll = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const payroll = await Payroll.findById(id);
+    if (!payroll) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payroll record not found'
+      });
+    }
+
+    // Don't allow deletion of paid payrolls
+    if (payroll.status === 'paid') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete paid payroll records'
+      });
+    }
+
+    // Soft delete
+    payroll.isActive = false;
+    await payroll.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Payroll record deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Approve payroll record
+// @route   PUT /api/payroll/:id/approve
+// @access  Private (HR Manager/Super Admin)
+const approvePayroll = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const payroll = await Payroll.findById(id);
+    if (!payroll) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payroll record not found'
+      });
+    }
+
+    if (payroll.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only pending payroll records can be approved'
+      });
+    }
+
+    payroll.status = 'approved';
+    payroll.approvedBy = req.user.id;
+    payroll.approvedAt = new Date();
+    await payroll.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Payroll record approved successfully',
+      data: payroll
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Mark payroll as paid
+// @route   PUT /api/payroll/:id/pay
+// @access  Private (HR roles)
+const markAsPaid = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { paymentDetails } = req.body;
+
+    const payroll = await Payroll.findById(id);
+    if (!payroll) {
+      return res.status(404).json({
+        success: false,
+        message: 'Payroll record not found'
+      });
+    }
+
+    if (payroll.status !== 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only approved payroll records can be marked as paid'
+      });
+    }
+
+    payroll.status = 'paid';
+    payroll.paymentDetails = {
+      ...payroll.paymentDetails,
+      ...paymentDetails,
+      paidDate: new Date()
+    };
+    await payroll.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Payroll marked as paid successfully',
+      data: payroll
     });
   } catch (error) {
     next(error);
@@ -150,70 +367,31 @@ const getPayrollHistory = async (req, res, next) => {
 };
 
 // @desc    Generate payslip
-// @route   GET /api/payroll/payslip/:employeeId
-// @access  Private (HR roles and own payslip)
+// @route   GET /api/payroll/:id/payslip
+// @access  Private
 const generatePayslip = async (req, res, next) => {
   try {
-    const { employeeId } = req.params;
-    const { payPeriodStart, payPeriodEnd } = req.query;
+    const { id } = req.params;
 
-    const employee = await Employee.findById(employeeId)
-      .populate('department', 'name');
+    const payroll = await Payroll.findById(id)
+      .populate({
+        path: 'employee',
+        select: 'employeeId personalInfo jobInfo department',
+        populate: {
+          path: 'department',
+          select: 'name'
+        }
+      });
 
-    if (!employee) {
+    if (!payroll) {
       return res.status(404).json({
         success: false,
-        message: 'Employee not found'
+        message: 'Payroll record not found'
       });
     }
 
-    // Check if user can view this payslip
-    const requestingEmployee = await Employee.findOne({ user: req.user.id });
-    const canView = ['super_admin', 'hr_manager', 'hr_coordinator'].includes(req.user.role) ||
-                   (requestingEmployee && requestingEmployee._id.toString() === employeeId);
-
-    if (!canView) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to view this payslip'
-      });
-    }
-
-    // This would typically fetch from a payroll records collection
-    // For now, we'll generate a sample payslip
-    const payslip = {
-      employee: {
-        name: `${employee.personalInfo.firstName} ${employee.personalInfo.lastName}`,
-        employeeId: employee.employeeId,
-        department: employee.department.name,
-        position: employee.jobInfo.position,
-        joiningDate: employee.jobInfo.startDate
-      },
-      company: {
-        name: 'Corvex HR System',
-        address: '123 Business St, City, State 12345'
-      },
-      payPeriod: {
-        start: payPeriodStart || new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-        end: payPeriodEnd || new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-      },
-      earnings: {
-        basicSalary: employee.jobInfo.salary,
-        allowances: 0,
-        overtime: 0,
-        bonus: 0,
-        gross: employee.jobInfo.salary
-      },
-      deductions: {
-        tax: employee.jobInfo.salary * 0.12,
-        providentFund: employee.jobInfo.salary * 0.12,
-        insurance: 100,
-        other: 0,
-        total: (employee.jobInfo.salary * 0.24) + 100
-      },
-      netSalary: employee.jobInfo.salary - ((employee.jobInfo.salary * 0.24) + 100),
-      generatedAt: new Date()
-    };
+    // Generate payslip data
+    const payslip = payroll.generatePayslip();
 
     res.status(200).json({
       success: true,
@@ -225,66 +403,20 @@ const generatePayslip = async (req, res, next) => {
   }
 };
 
-// @desc    Get payroll summary
+// @desc    Get payroll summary/statistics
 // @route   GET /api/payroll/summary
 // @access  Private (HR roles)
 const getPayrollSummary = async (req, res, next) => {
   try {
-    const { month, year, departmentId } = req.query;
+    const { month, year } = req.query;
     
-    const currentMonth = month || new Date().getMonth() + 1;
-    const currentYear = year || new Date().getFullYear();
-
     let filter = {};
-    if (departmentId) {
-      filter.department = departmentId;
+    if (month && year) {
+      filter['payPeriod.month'] = parseInt(month);
+      filter['payPeriod.year'] = parseInt(year);
     }
 
-    const employees = await Employee.find(filter)
-      .populate('department', 'name');
-
-    const summary = {
-      period: `${currentMonth}/${currentYear}`,
-      totalEmployees: employees.length,
-      totalGrossPay: 0,
-      totalDeductions: 0,
-      totalNetPay: 0,
-      departmentBreakdown: {},
-      payrollBreakdown: employees.map(employee => {
-        const grossPay = employee.jobInfo.salary;
-        const deductions = grossPay * 0.24 + 100; // Simplified calculation
-        const netPay = grossPay - deductions;
-
-        return {
-          employeeId: employee.employeeId,
-          name: `${employee.personalInfo.firstName} ${employee.personalInfo.lastName}`,
-          department: employee.department?.name || 'No Department',
-          grossPay,
-          deductions,
-          netPay
-        };
-      })
-    };
-
-    // Calculate totals
-    summary.payrollBreakdown.forEach(emp => {
-      summary.totalGrossPay += emp.grossPay;
-      summary.totalDeductions += emp.deductions;
-      summary.totalNetPay += emp.netPay;
-
-      // Department breakdown
-      const dept = emp.department;
-      if (!summary.departmentBreakdown[dept]) {
-        summary.departmentBreakdown[dept] = {
-          employees: 0,
-          grossPay: 0,
-          netPay: 0
-        };
-      }
-      summary.departmentBreakdown[dept].employees++;
-      summary.departmentBreakdown[dept].grossPay += emp.grossPay;
-      summary.departmentBreakdown[dept].netPay += emp.netPay;
-    });
+    const summary = await Payroll.getPayrollSummary(filter);
 
     res.status(200).json({
       success: true,
@@ -296,16 +428,20 @@ const getPayrollSummary = async (req, res, next) => {
   }
 };
 
-// @desc    Get salary structure
-// @route   GET /api/payroll/salary-structure/:employeeId
-// @access  Private (HR roles and own structure)
-const getSalaryStructure = async (req, res, next) => {
+// @desc    Calculate payroll for employee (helper function)
+// @route   POST /api/payroll/calculate
+// @access  Private (HR roles)
+const calculatePayroll = async (req, res, next) => {
   try {
-    const { employeeId } = req.params;
+    const {
+      employeeId,
+      payPeriod,
+      workingDays = 22,
+      presentDays,
+      overtimeHours = 0
+    } = req.body;
 
-    const employee = await Employee.findById(employeeId)
-      .populate('department', 'name');
-
+    const employee = await Employee.findById(employeeId);
     if (!employee) {
       return res.status(404).json({
         success: false,
@@ -313,49 +449,67 @@ const getSalaryStructure = async (req, res, next) => {
       });
     }
 
-    // Check authorization
-    const requestingEmployee = await Employee.findOne({ user: req.user.id });
-    const canView = ['super_admin', 'hr_manager', 'hr_coordinator'].includes(req.user.role) ||
-                   (requestingEmployee && requestingEmployee._id.toString() === employeeId);
-
-    if (!canView) {
-      return res.status(403).json({
-        success: false,
-        message: 'Not authorized to view this salary structure'
-      });
-    }
-
     const baseSalary = employee.jobInfo.salary;
     
-    const salaryStructure = {
-      employee: {
-        name: `${employee.personalInfo.firstName} ${employee.personalInfo.lastName}`,
-        employeeId: employee.employeeId,
-        department: employee.department?.name,
-        position: employee.jobInfo.position,
-        payType: employee.jobInfo.payType || 'monthly'
+    // Calculate salary based on attendance
+    const attendanceRatio = presentDays / workingDays;
+    const basicSalary = baseSalary * attendanceRatio;
+
+    // Calculate allowances (example percentages)
+    const allowances = {
+      hra: basicSalary * 0.4, // 40% HRA
+      medical: 2000, // Fixed medical allowance
+      transport: 1500, // Fixed transport allowance
+      foodAllowance: 1000, // Fixed food allowance
+      otherAllowances: 0,
+      total: 0
+    };
+
+    // Calculate deductions (example percentages)
+    const deductions = {
+      tax: basicSalary * 0.1, // 10% tax
+      providentFund: basicSalary * 0.12, // 12% PF
+      insurance: 500, // Fixed insurance
+      loan: 0,
+      otherDeductions: 0,
+      total: 0
+    };
+
+    // Calculate overtime
+    const overtime = {
+      hours: overtimeHours,
+      rate: (baseSalary / (workingDays * 8)) * 1.5, // 1.5x hourly rate
+      amount: 0
+    };
+
+    const calculatedPayroll = {
+      employee: employeeId,
+      payPeriod,
+      salary: {
+        basicSalary,
+        allowances,
+        deductions,
+        overtime,
+        bonus: {
+          performance: 0,
+          festival: 0,
+          other: 0,
+          total: 0
+        }
       },
-      components: {
-        basic: baseSalary * 0.6, // 60% basic
-        hra: baseSalary * 0.2,   // 20% HRA
-        conveyance: baseSalary * 0.1, // 10% conveyance
-        medical: baseSalary * 0.05,   // 5% medical
-        other: baseSalary * 0.05      // 5% other allowances
-      },
-      deductions: {
-        providentFund: baseSalary * 0.12, // 12% PF
-        professionalTax: 200,
-        tax: baseSalary * 0.12 // Simplified tax calculation
-      },
-      gross: baseSalary,
-      totalDeductions: (baseSalary * 0.24) + 200,
-      netSalary: baseSalary - ((baseSalary * 0.24) + 200)
+      attendance: {
+        workingDays,
+        presentDays,
+        absentDays: workingDays - presentDays,
+        leavesTaken: 0,
+        overtimeHours
+      }
     };
 
     res.status(200).json({
       success: true,
-      message: 'Salary structure retrieved successfully',
-      data: salaryStructure
+      message: 'Payroll calculated successfully',
+      data: calculatedPayroll
     });
   } catch (error) {
     next(error);
@@ -363,9 +517,14 @@ const getSalaryStructure = async (req, res, next) => {
 };
 
 module.exports = {
-  calculatePayroll,
-  getPayrollHistory,
+  getAllPayrolls,
+  createPayroll,
+  getPayroll,
+  updatePayroll,
+  deletePayroll,
+  approvePayroll,
+  markAsPaid,
   generatePayslip,
   getPayrollSummary,
-  getSalaryStructure
+  calculatePayroll
 };

@@ -12,6 +12,11 @@ class DepartmentService {
     }
   }
 
+  // Alias for getDepartments
+  async getAllDepartments(params = {}) {
+    return this.getDepartments(params);
+  }
+
   // Get single department
   async getDepartment(id) {
     try {

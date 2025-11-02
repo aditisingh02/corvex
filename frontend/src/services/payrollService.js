@@ -1,6 +1,71 @@
 import { apiClient } from './api.js';
 
 class PayrollService {
+  // Get all payrolls
+  async getAllPayrolls(params = {}) {
+    try {
+      const queryString = new URLSearchParams(params).toString();
+      const endpoint = queryString ? `/payroll?${queryString}` : '/payroll';
+      return await apiClient.get(endpoint);
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch payroll data');
+    }
+  }
+
+  // Create new payroll record
+  async createPayroll(payrollData) {
+    try {
+      return await apiClient.post('/payroll', payrollData);
+    } catch (error) {
+      throw new Error(error.message || 'Failed to create payroll record');
+    }
+  }
+
+  // Get single payroll record
+  async getPayroll(id) {
+    try {
+      return await apiClient.get(`/payroll/${id}`);
+    } catch (error) {
+      throw new Error(error.message || 'Failed to fetch payroll record');
+    }
+  }
+
+  // Update payroll record
+  async updatePayroll(id, payrollData) {
+    try {
+      return await apiClient.put(`/payroll/${id}`, payrollData);
+    } catch (error) {
+      throw new Error(error.message || 'Failed to update payroll record');
+    }
+  }
+
+  // Delete payroll record
+  async deletePayroll(id) {
+    try {
+      return await apiClient.delete(`/payroll/${id}`);
+    } catch (error) {
+      throw new Error(error.message || 'Failed to delete payroll record');
+    }
+  }
+
+  // Approve payroll record
+  async approvePayroll(id) {
+    try {
+      return await apiClient.put(`/payroll/${id}/approve`);
+    } catch (error) {
+      throw new Error(error.message || 'Failed to approve payroll record');
+    }
+  }
+
+  // Mark payroll as paid
+  async markAsPaid(id, paymentDetails) {
+    try {
+      return await apiClient.put(`/payroll/${id}/pay`, { paymentDetails });
+    } catch (error) {
+      throw new Error(error.message || 'Failed to mark payroll as paid');
+    }
+  }
+
   // Calculate payroll for employee
   async calculatePayroll(payrollData) {
     try {

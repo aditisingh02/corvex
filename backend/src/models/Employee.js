@@ -8,8 +8,9 @@ const employeeSchema = new mongoose.Schema({
   },
   employeeId: {
     type: String,
-    required: [true, 'Employee ID is required'],
-    unique: true
+    unique: true,
+    required: false // Explicitly set to false
+    // Auto-generated in pre-save middleware
   },
   personalInfo: {
     firstName: {
@@ -283,12 +284,21 @@ employeeSchema.virtual('yearsOfService').get(function() {
 
 // Pre-save middleware to generate employee ID
 employeeSchema.pre('save', async function(next) {
-  if (!this.employeeId) {
-    const year = new Date().getFullYear();
-    const count = await this.constructor.countDocuments();
-    this.employeeId = `EMP${year}${String(count + 1).padStart(4, '0')}`;
+  try {
+    console.log('Pre-save middleware running. Current employeeId:', this.employeeId);
+    if (!this.employeeId) {
+      const year = new Date().getFullYear();
+      const count = await this.constructor.countDocuments();
+      this.employeeId = `EMP${year}${String(count + 1).padStart(4, '0')}`;
+      console.log('Generated new employeeId:', this.employeeId);
+    } else {
+      console.log('EmployeeId already exists:', this.employeeId);
+    }
+    next();
+  } catch (error) {
+    console.error('Error in pre-save middleware:', error);
+    next(error);
   }
-  next();
 });
 
 // Ensure virtual fields are serialized

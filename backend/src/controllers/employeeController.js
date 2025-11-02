@@ -119,6 +119,7 @@ const getEmployee = async (req, res, next) => {
 // @access  Private (HR roles only)
 const createEmployee = async (req, res, next) => {
   try {
+    console.log('Creating employee with data:', req.body);
     const { userInfo, ...employeeData } = req.body;
 
     // Create user account first
@@ -128,14 +129,30 @@ const createEmployee = async (req, res, next) => {
       role: userInfo.role || 'employee'
     });
 
+    console.log('User created:', user._id);
+
+    // Ensure employeeId is not included if empty to trigger auto-generation
+    if (employeeData.employeeId === '' || employeeData.employeeId === undefined) {
+      delete employeeData.employeeId;
+    }
+
+    console.log('Employee data before creation:', employeeData);
+
     // Create employee profile
-    const employee = await Employee.create({
+    const employee = new Employee({
       user: user._id,
       ...employeeData
     });
 
+    console.log('Employee instance before save:', employee);
+    console.log('Employee validation before save:', employee.validateSync());
+    
+    const savedEmployee = await employee.save();
+
+    console.log('Employee saved:', savedEmployee._id, 'with employeeId:', savedEmployee.employeeId);
+
     // Populate the response
-    const populatedEmployee = await Employee.findById(employee._id)
+    const populatedEmployee = await Employee.findById(savedEmployee._id)
       .populate('user', 'email role')
       .populate('jobInfo.department', 'name code')
       .populate('jobInfo.manager', 'personalInfo.firstName personalInfo.lastName');
@@ -145,6 +162,27 @@ const createEmployee = async (req, res, next) => {
       data: populatedEmployee
     });
   } catch (error) {
+    console.error('Employee creation error:', error);
+    
+    // Handle specific MongoDB validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(val => val.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Validation Error',
+        errors: errors
+      });
+    }
+    
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json({
+        success: false,
+        message: `Duplicate field value entered for ${field}`
+      });
+    }
+    
     next(error);
   }
 };
