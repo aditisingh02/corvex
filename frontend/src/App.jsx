@@ -89,7 +89,7 @@ function App() {
             </ProtectedRoute>
           } />
           
-          <Route path="/candidate/:id" element={
+          <Route path="/view-candidate/:id" element={
             <ProtectedRoute requiredPermission="view_candidate_details">
               <ViewCandidate />
             </ProtectedRoute>

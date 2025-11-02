@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import RoleSwitcher from "../RoleSwitcher";
 
 const HRCoordinatorDashboard = () => {
   const navigate = useNavigate();
@@ -197,8 +196,7 @@ const HRCoordinatorDashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900">HR Coordinator Dashboard</h1>
           <p className="text-gray-600 mt-2">Daily HR operations and employee coordination</p>
         </div>
-        <div className="flex items-center space-x-4">
-          <RoleSwitcher />
+        <div className="flex items-center">
           <div className="text-right">
             <p className="text-sm font-medium text-gray-900">Welcome back, {user?.name}</p>
             <p className="text-xs text-gray-500">HR Coordinator</p>

@@ -7,13 +7,15 @@ const {
   addBreak,
   getAttendance,
   getTodayAttendance,
-  getAttendanceSummary
+  getAttendanceSummary,
+  manualAttendance
 } = require('../controllers/attendanceController');
 
 // Employee routes
 router.post('/clock-in', protect, clockIn);
 router.post('/clock-out', protect, clockOut);
 router.post('/break', protect, addBreak);
+router.post('/manual', protect, manualAttendance);
 router.get('/today', protect, getTodayAttendance);
 
 // General attendance routes

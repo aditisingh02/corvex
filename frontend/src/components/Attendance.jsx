@@ -12,6 +12,15 @@ const Attendance = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [todayStatus, setTodayStatus] = useState(null);
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showManualAttendanceModal, setShowManualAttendanceModal] = useState(false);
+  const [manualAttendanceForm, setManualAttendanceForm] = useState({
+    date: new Date().toISOString().split('T')[0],
+    action: 'checkIn', // 'checkIn' or 'checkOut'
+    reason: '',
+    remarks: ''
+  });
   const itemsPerPage = 10;
 
   // Fetch attendance data from backend
@@ -19,13 +28,45 @@ const Attendance = () => {
     const fetchAttendance = async () => {
       try {
         setLoading(true);
-        const response = await attendanceService.getAllAttendance();
+        // Build query parameters based on filters
+        const params = {};
+        
+        // Date filtering
+        const today = new Date();
+        switch (dateFilter) {
+          case 'today':
+            params.startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+            params.endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+            break;
+          case 'yesterday':
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            params.startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate()).toISOString();
+            params.endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1).toISOString();
+            break;
+          case 'thisWeek':
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - today.getDay());
+            params.startDate = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate()).toISOString();
+            break;
+          case 'thisMonth':
+            params.startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
+            break;
+          default:
+            // Get last 30 days by default
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            params.startDate = thirtyDaysAgo.toISOString();
+        }
+
+        const response = await attendanceService.getAllAttendance(params);
         if (response.success) {
           setAttendanceData(response.data || []);
         } else {
           setError(response.message || "Failed to fetch attendance data");
         }
       } catch (err) {
+        console.error('Fetch attendance error:', err);
         setError(err.message || "Failed to fetch attendance data");
       } finally {
         setLoading(false);
@@ -39,9 +80,12 @@ const Attendance = () => {
   useEffect(() => {
     const fetchTodayStatus = async () => {
       try {
+        console.log('Fetching today\'s status...');
         const response = await attendanceService.getTodayStatus();
+        console.log('Today\'s status response:', response);
         if (response.success) {
           setTodayStatus(response.data);
+          console.log('Set today\'s status to:', response.data);
         }
       } catch (err) {
         console.error("Failed to fetch today's status:", err);
@@ -51,16 +95,170 @@ const Attendance = () => {
     fetchTodayStatus();
   }, []);
 
+  // Handle view attendance details
+  const handleViewAttendance = (record) => {
+    setSelectedAttendance(record);
+    setShowViewModal(true);
+  };
+
+  // Close view modal
+  const closeViewModal = () => {
+    setShowViewModal(false);
+    setSelectedAttendance(null);
+  };
+
+  // Handle manual attendance
+  const handleManualAttendance = () => {
+    setShowManualAttendanceModal(true);
+  };
+
+  const closeManualAttendanceModal = () => {
+    setShowManualAttendanceModal(false);
+    setManualAttendanceForm({
+      date: new Date().toISOString().split('T')[0],
+      action: 'checkIn',
+      reason: '',
+      remarks: ''
+    });
+  };
+
+  const handleManualAttendanceSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const currentTimestamp = new Date();
+      
+      // Prepare attendance data based on action
+      const attendanceData = {
+        date: manualAttendanceForm.date,
+        action: manualAttendanceForm.action,
+        timestamp: currentTimestamp.toISOString(),
+        reason: manualAttendanceForm.reason,
+        remarks: manualAttendanceForm.remarks
+      };
+
+      // Call API to save manual attendance
+      console.log('Submitting manual attendance data:', attendanceData);
+      const response = await attendanceService.manualAttendance(attendanceData);
+      
+      if (response.success) {
+        // Update today's status immediately if the date is today
+        const today = new Date().toISOString().split('T')[0];
+        if (manualAttendanceForm.date === today) {
+          // Refresh today's status from server
+          try {
+            console.log('Refreshing today\'s status after manual attendance...');
+            const updatedTodayStatus = await attendanceService.getTodayStatus();
+            console.log('Updated today\'s status response:', updatedTodayStatus);
+            if (updatedTodayStatus.success) {
+              setTodayStatus(updatedTodayStatus.data);
+              console.log('Updated today\'s status to:', updatedTodayStatus.data);
+            }
+          } catch (err) {
+            console.error("Failed to refresh today's status:", err);
+          }
+        }
+        
+        // Show success message with timestamp
+        const timeString = currentTimestamp.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
+        
+        alert(`Manual ${manualAttendanceForm.action === 'checkIn' ? 'Check In' : 'Check Out'} marked successfully at ${timeString}!`);
+        closeManualAttendanceModal();
+        
+        // Refresh attendance data
+        const fetchAttendance = async () => {
+          try {
+            // Build query parameters based on filters
+            const params = {};
+            
+            // Date filtering
+            const today = new Date();
+            switch (dateFilter) {
+              case 'today':
+                params.startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+                params.endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+                break;
+              case 'yesterday':
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                params.startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate()).toISOString();
+                params.endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate() + 1).toISOString();
+                break;
+              case 'thisWeek':
+                const startOfWeek = new Date(today);
+                startOfWeek.setDate(today.getDate() - today.getDay());
+                params.startDate = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate()).toISOString();
+                break;
+              case 'thisMonth':
+                params.startDate = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
+                break;
+              default:
+                // Get last 30 days by default
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                params.startDate = thirtyDaysAgo.toISOString();
+            }
+
+            const attendanceResponse = await attendanceService.getAllAttendance(params);
+            if (attendanceResponse.success) {
+              setAttendanceData(attendanceResponse.data || []);
+            }
+          } catch (err) {
+            console.error('Error refreshing attendance data:', err);
+          }
+        };
+        
+        // Refresh attendance data
+        await fetchAttendance();
+      } else {
+        alert(response.message || 'Failed to mark attendance. Please try again.');
+      }
+      
+    } catch (error) {
+      console.error('Error marking manual attendance:', error);
+      alert('Failed to mark attendance. Please try again.');
+    }
+  };
+
   // Clock In function
   const handleClockIn = async () => {
     try {
       const response = await attendanceService.clockIn();
       if (response.success) {
-        // Refresh data
+        // Refresh today's status
         const updatedResponse = await attendanceService.getTodayStatus();
         if (updatedResponse.success) {
           setTodayStatus(updatedResponse.data);
         }
+        
+        // Refresh attendance data for the table
+        const fetchAttendance = async () => {
+          try {
+            const params = {};
+            const today = new Date();
+            switch (dateFilter) {
+              case 'today':
+                params.startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+                params.endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+                break;
+              default:
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                params.startDate = thirtyDaysAgo.toISOString();
+            }
+            const attendanceResponse = await attendanceService.getAllAttendance(params);
+            if (attendanceResponse.success) {
+              setAttendanceData(attendanceResponse.data || []);
+            }
+          } catch (err) {
+            console.error('Error refreshing attendance data:', err);
+          }
+        };
+        
+        await fetchAttendance();
         alert("Clocked in successfully!");
       } else {
         alert(response.message || "Failed to clock in");
@@ -75,11 +273,37 @@ const Attendance = () => {
     try {
       const response = await attendanceService.clockOut();
       if (response.success) {
-        // Refresh data
+        // Refresh today's status
         const updatedResponse = await attendanceService.getTodayStatus();
         if (updatedResponse.success) {
           setTodayStatus(updatedResponse.data);
         }
+        
+        // Refresh attendance data for the table
+        const fetchAttendance = async () => {
+          try {
+            const params = {};
+            const today = new Date();
+            switch (dateFilter) {
+              case 'today':
+                params.startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+                params.endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
+                break;
+              default:
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                params.startDate = thirtyDaysAgo.toISOString();
+            }
+            const attendanceResponse = await attendanceService.getAllAttendance(params);
+            if (attendanceResponse.success) {
+              setAttendanceData(attendanceResponse.data || []);
+            }
+          } catch (err) {
+            console.error('Error refreshing attendance data:', err);
+          }
+        };
+        
+        await fetchAttendance();
         alert("Clocked out successfully!");
       } else {
         alert(response.message || "Failed to clock out");
@@ -195,34 +419,34 @@ const Attendance = () => {
           </div>
 
           {/* Today's Status Card */}
-          {todayStatus && (
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Today's Status</h3>
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">
-                      Check In: <span className="font-medium">{formatTime(todayStatus.checkIn)}</span>
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Check Out: <span className="font-medium">{formatTime(todayStatus.checkOut)}</span>
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Status: <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(todayStatus.status)}`}>
-                        {todayStatus.status}
-                      </span>
-                    </p>
-                  </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Today's Status</h3>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Check In: <span className="font-medium">{todayStatus?.checkIn ? formatTime(todayStatus.checkIn) : '--:--'}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Check Out: <span className="font-medium">{todayStatus?.checkOut ? formatTime(todayStatus.checkOut) : '--:--'}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Status: <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(todayStatus?.status || 'absent')}`}>
+                      {todayStatus?.status || 'Not clocked in'}
+                    </span>
+                  </p>
                 </div>
+              </div>
+              <div className="flex flex-col space-y-3">
                 <div className="flex space-x-3">
-                  {!todayStatus.checkIn ? (
+                  {!todayStatus?.checkIn ? (
                     <button
                       onClick={handleClockIn}
                       className="px-4 py-2 bg-[#5E17EB] text-white rounded-lg hover:bg-[#4A0EC9] transition-colors"
                     >
                       Clock In
                     </button>
-                  ) : !todayStatus.checkOut ? (
+                  ) : !todayStatus?.checkOut ? (
                     <button
                       onClick={handleClockOut}
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -235,9 +459,15 @@ const Attendance = () => {
                     </span>
                   )}
                 </div>
+                <button
+                  onClick={handleManualAttendance}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                >
+                  Mark Manual Attendance
+                </button>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Controls */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
@@ -387,7 +617,11 @@ const Attendance = () => {
 
                       {/* Actions */}
                       <div className="col-span-1">
-                        <button className="p-1 text-gray-400 hover:text-[#5E17EB] transition-colors">
+                        <button 
+                          onClick={() => handleViewAttendance(record)}
+                          className="p-1 text-gray-400 hover:text-[#5E17EB] transition-colors"
+                          title="View Details"
+                        >
                           <svg
                             className="w-4 h-4"
                             fill="none"
@@ -445,6 +679,287 @@ const Attendance = () => {
           )}
         </div>
       </div>
+
+      {/* Manual Attendance Modal */}
+      {showManualAttendanceModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-lg w-full">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Mark Manual Attendance</h2>
+              <button
+                onClick={closeManualAttendanceModal}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <form onSubmit={handleManualAttendanceSubmit} className="p-6 space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start space-x-3">
+                  <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium text-blue-900">Manual Attendance Entry</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      This will record your attendance with the current timestamp. Use when automatic check-in/out isn't working.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                <input
+                  type="date"
+                  value={manualAttendanceForm.date}
+                  onChange={(e) => setManualAttendanceForm({...manualAttendanceForm, date: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Action</label>
+                <select
+                  value={manualAttendanceForm.action}
+                  onChange={(e) => setManualAttendanceForm({...manualAttendanceForm, action: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent"
+                  required
+                >
+                  <option value="checkIn">Check In</option>
+                  <option value="checkOut">Check Out</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Current time will be used: {new Date().toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true
+                  })}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Reason for Manual Entry</label>
+                <select
+                  value={manualAttendanceForm.reason}
+                  onChange={(e) => setManualAttendanceForm({...manualAttendanceForm, reason: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent"
+                  required
+                >
+                  <option value="">Select a reason</option>
+                  <option value="System malfunction">System malfunction</option>
+                  <option value="Forgot to clock in/out">Forgot to clock in/out</option>
+                  <option value="Network issues">Network issues</option>
+                  <option value="Working from different location">Working from different location</option>
+                  <option value="Emergency situation">Emergency situation</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Additional Remarks</label>
+                <textarea
+                  value={manualAttendanceForm.remarks}
+                  onChange={(e) => setManualAttendanceForm({...manualAttendanceForm, remarks: e.target.value})}
+                  placeholder="Any additional details about this attendance entry..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5E17EB] focus:border-transparent resize-none"
+                />
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end pt-4 space-x-3">
+                <button
+                  type="button"
+                  onClick={closeManualAttendanceModal}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-[#5E17EB] text-white rounded-lg hover:bg-[#4A0EC9] transition-colors"
+                >
+                  Mark {manualAttendanceForm.action === 'checkIn' ? 'Check In' : 'Check Out'} Now
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Attendance Details Modal */}
+      {showViewModal && selectedAttendance && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Attendance Details</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedAttendance.employee.firstName} {selectedAttendance.employee.lastName} • {new Date(selectedAttendance.date).toLocaleDateString()}
+                </p>
+              </div>
+              <button
+                onClick={closeViewModal}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Employee Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-medium text-gray-900 mb-3">Employee Information</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Name:</span>
+                      <span className="font-medium">{selectedAttendance.employee.firstName} {selectedAttendance.employee.lastName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Employee ID:</span>
+                      <span className="font-medium">{selectedAttendance.employee.employeeId}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Position:</span>
+                      <span className="font-medium">{selectedAttendance.employee.jobTitle}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Department:</span>
+                      <span className="font-medium">{selectedAttendance.employee.department}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-medium text-gray-900 mb-3">Attendance Summary</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Date:</span>
+                      <span className="font-medium">{new Date(selectedAttendance.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedAttendance.status)}`}>
+                        {selectedAttendance.status}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Working Hours:</span>
+                      <span className="font-medium">{selectedAttendance.totalHours || '--'}</span>
+                    </div>
+                    {selectedAttendance.lateArrival && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Late Arrival:</span>
+                        <span className="text-red-600 font-medium">Yes</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Time Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Check In</h3>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{formatTime(selectedAttendance.checkIn)}</p>
+                        <p className="text-sm text-gray-600">Check In Time</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Check Out</h3>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{formatTime(selectedAttendance.checkOut)}</p>
+                        <p className="text-sm text-gray-600">Check Out Time</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Breaks Information */}
+              {selectedAttendance.breaks && selectedAttendance.breaks.length > 0 && (
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Breaks</h3>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="space-y-3">
+                      {selectedAttendance.breaks.map((breakItem, index) => (
+                        <div key={index} className="flex items-center justify-between bg-white rounded-lg p-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900 capitalize">{breakItem.type} Break</p>
+                              <p className="text-sm text-gray-600">
+                                {formatTime(breakItem.startTime)} - {formatTime(breakItem.endTime)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {breakItem.duration} min
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Remarks */}
+              {selectedAttendance.remarks && (
+                <div>
+                  <h3 className="font-medium text-gray-900 mb-3">Remarks</h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-gray-700">{selectedAttendance.remarks}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-end p-6 border-t border-gray-200 space-x-3">
+              <button
+                onClick={closeViewModal}
+                className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

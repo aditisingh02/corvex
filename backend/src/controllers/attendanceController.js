@@ -212,20 +212,57 @@ const getAttendance = async (req, res, next) => {
     const skip = (page - 1) * limit;
     
     const attendance = await Attendance.find(filter)
-      .populate('employee', 'personalInfo.firstName personalInfo.lastName employeeId')
+      .populate({
+        path: 'employee',
+        select: 'personalInfo employeeId jobInfo status user',
+        populate: [
+          {
+            path: 'jobInfo.department',
+            select: 'name'
+          },
+          {
+            path: 'user',
+            select: 'email'
+          }
+        ]
+      })
       .sort({ date: -1 })
       .skip(skip)
       .limit(parseInt(limit));
+
+    // Transform the data to match frontend expectations
+    const transformedAttendance = attendance.map(record => ({
+      _id: record._id,
+      employee: {
+        _id: record.employee._id,
+        firstName: record.employee.personalInfo.firstName,
+        lastName: record.employee.personalInfo.lastName,
+        email: record.employee.user?.email || 'N/A',
+        employeeId: record.employee.employeeId,
+        jobTitle: record.employee.jobInfo.position,
+        department: record.employee.jobInfo.department?.name || 'N/A'
+      },
+      date: record.date,
+      checkIn: record.checkIn.time,
+      checkOut: record.checkOut.time,
+      status: record.status,
+      workingHours: record.workingHours,
+      totalHours: record.workingHours ? `${Math.floor(record.workingHours)}h ${Math.round((record.workingHours % 1) * 60)}m` : '--',
+      breaks: record.breaks,
+      lateArrival: record.lateArrival,
+      earlyDeparture: record.earlyDeparture,
+      remarks: record.remarks
+    }));
 
     const total = await Attendance.countDocuments(filter);
 
     res.status(200).json({
       success: true,
-      count: attendance.length,
+      count: transformedAttendance.length,
       total,
       page: parseInt(page),
       pages: Math.ceil(total / limit),
-      data: attendance
+      data: transformedAttendance
     });
   } catch (error) {
     next(error);
@@ -247,18 +284,38 @@ const getTodayAttendance = async (req, res, next) => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+    console.log('Fetching today\'s attendance for employee:', employee.employeeId);
+    console.log('Date range:', today, 'to', tomorrow);
 
     const attendance = await Attendance.findOne({
       employee: employee._id,
       date: {
         $gte: today,
-        $lt: new Date(today.getTime() + 24 * 60 * 60 * 1000)
+        $lt: tomorrow
       }
-    });
+    }).sort({ updatedAt: -1 }); // Get the most recently updated record
+
+    console.log('Found attendance record:', attendance);
+
+    let transformedData = null;
+    if (attendance) {
+      transformedData = {
+        _id: attendance._id,
+        checkIn: attendance.checkIn.time,
+        checkOut: attendance.checkOut.time,
+        status: attendance.status,
+        workingHours: attendance.workingHours,
+        breaks: attendance.breaks,
+        date: attendance.date,
+        isManualEntry: attendance.isManualEntry
+      };
+    }
 
     res.status(200).json({
       success: true,
-      data: attendance || null
+      data: transformedData
     });
   } catch (error) {
     next(error);
@@ -342,11 +399,109 @@ const getAttendanceSummary = async (req, res, next) => {
   }
 };
 
+// @desc    Manual attendance entry
+// @route   POST /api/attendance/manual
+// @access  Private
+const manualAttendance = async (req, res, next) => {
+  try {
+    const { date, action, timestamp, reason, remarks } = req.body;
+    
+    console.log('Manual attendance request received:', {
+      date, action, timestamp, reason, remarks
+    });
+    
+    // Get employee from user
+    const employee = await Employee.findOne({ user: req.user.id });
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: 'Employee profile not found'
+      });
+    }
+
+    console.log('Employee found:', employee.employeeId);
+
+    const attendanceDate = new Date(date);
+    attendanceDate.setHours(0, 0, 0, 0);
+
+    // Find or create attendance record for the date
+    let attendance = await Attendance.findOne({
+      employee: employee._id,
+      date: {
+        $gte: attendanceDate,
+        $lt: new Date(attendanceDate.getTime() + 24 * 60 * 60 * 1000)
+      }
+    });
+
+    console.log('Existing attendance record:', attendance);
+
+    const timestampDate = new Date(timestamp);
+
+    if (!attendance) {
+      // Create new attendance record
+      const attendanceData = {
+        employee: employee._id,
+        date: attendanceDate,
+        status: 'present',
+        isManualEntry: true,
+        remarks: `Manual entry: ${reason}. ${remarks || ''}`.trim()
+      };
+
+      if (action === 'checkIn') {
+        attendanceData.checkIn = {
+          time: timestampDate,
+          location: { type: 'Point', coordinates: [0, 0] },
+          method: 'manual'
+        };
+      } else if (action === 'checkOut') {
+        attendanceData.checkOut = {
+          time: timestampDate,
+          location: { type: 'Point', coordinates: [0, 0] },
+          method: 'manual'
+        };
+      }
+
+      attendance = await Attendance.create(attendanceData);
+      console.log('Created new attendance record:', attendance);
+    } else {
+      // Update existing attendance record
+      if (action === 'checkIn') {
+        attendance.checkIn = {
+          time: timestampDate,
+          location: { type: 'Point', coordinates: [0, 0] },
+          method: 'manual'
+        };
+      } else if (action === 'checkOut') {
+        attendance.checkOut = {
+          time: timestampDate,
+          location: { type: 'Point', coordinates: [0, 0] },
+          method: 'manual'
+        };
+      }
+
+      attendance.isManualEntry = true;
+      attendance.remarks = `Manual entry: ${reason}. ${remarks || ''}`.trim();
+      await attendance.save();
+      console.log('Updated existing attendance record:', attendance);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Manual ${action} recorded successfully`,
+      data: attendance
+    });
+  } catch (error) {
+    console.error('Manual attendance error:', error);
+    next(error);
+  }
+};
+
 module.exports = {
   clockIn,
   clockOut,
   addBreak,
   getAttendance,
   getTodayAttendance,
-  getAttendanceSummary
+  getAttendanceSummary,
+  manualAttendance
 };

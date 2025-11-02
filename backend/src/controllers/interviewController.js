@@ -638,6 +638,115 @@ const getAvailableInterviewers = async (req, res) => {
   }
 };
 
+// Advance candidate stage
+const advanceCandidateStage = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const candidate = await Candidate.findById(id);
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Candidate not found'
+      });
+    }
+
+    // Check if candidate can be advanced
+    if (candidate.status !== 'active') {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot advance inactive candidate'
+      });
+    }
+
+    if (candidate.interviewStage === 'selected' || candidate.interviewStage === 'rejected') {
+      return res.status(400).json({
+        success: false,
+        message: 'Candidate is already in final stage'
+      });
+    }
+
+    await candidate.advanceStage();
+    await candidate.populate('applicationInfo.department');
+
+    res.json({
+      success: true,
+      message: 'Candidate stage advanced successfully',
+      data: candidate
+    });
+  } catch (error) {
+    console.error('Error advancing candidate stage:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error advancing candidate stage',
+      error: error.message
+    });
+  }
+};
+
+// Reject candidate
+const rejectCandidate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    const candidate = await Candidate.findById(id);
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Candidate not found'
+      });
+    }
+
+    await candidate.reject(reason);
+    await candidate.populate('applicationInfo.department');
+
+    res.json({
+      success: true,
+      message: 'Candidate rejected successfully',
+      data: candidate
+    });
+  } catch (error) {
+    console.error('Error rejecting candidate:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error rejecting candidate',
+      error: error.message
+    });
+  }
+};
+
+// Hire candidate
+const hireCandidate = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const candidate = await Candidate.findById(id);
+    if (!candidate) {
+      return res.status(404).json({
+        success: false,
+        message: 'Candidate not found'
+      });
+    }
+
+    await candidate.hire();
+    await candidate.populate('applicationInfo.department');
+
+    res.json({
+      success: true,
+      message: 'Candidate hired successfully',
+      data: candidate
+    });
+  } catch (error) {
+    console.error('Error hiring candidate:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error hiring candidate',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   // Candidate operations
   createCandidate,
@@ -645,6 +754,9 @@ module.exports = {
   getCandidateById,
   updateCandidate,
   deleteCandidate,
+  advanceCandidateStage,
+  rejectCandidate,
+  hireCandidate,
   
   // Interview operations
   scheduleInterview,

@@ -5,7 +5,7 @@ export const candidateService = {
   // Create a new candidate
   async createCandidate(candidateData) {
     try {
-      const response = await api.post('/interviews/candidates', candidateData);
+      const response = await api.post('/candidates', candidateData);
       return response.data;
     } catch (error) {
       console.error('Error creating candidate:', error);
@@ -16,7 +16,7 @@ export const candidateService = {
   // Get all candidates with optional filtering
   async getAllCandidates(params = {}) {
     try {
-      const response = await api.get('/interviews/candidates', { params });
+      const response = await api.get('/candidates', { params });
       return response.data;
     } catch (error) {
       console.error('Error fetching candidates:', error);
@@ -27,7 +27,7 @@ export const candidateService = {
   // Get candidate by ID
   async getCandidateById(candidateId) {
     try {
-      const response = await api.get(`/interviews/candidates/${candidateId}`);
+      const response = await api.get(`/candidates/${candidateId}`);
       return response.data;
     } catch (error) {
       console.error('Error fetching candidate:', error);
@@ -38,7 +38,7 @@ export const candidateService = {
   // Update candidate
   async updateCandidate(candidateId, updateData) {
     try {
-      const response = await api.put(`/interviews/candidates/${candidateId}`, updateData);
+      const response = await api.put(`/candidates/${candidateId}`, updateData);
       return response.data;
     } catch (error) {
       console.error('Error updating candidate:', error);
@@ -49,7 +49,7 @@ export const candidateService = {
   // Delete candidate
   async deleteCandidate(candidateId) {
     try {
-      const response = await api.delete(`/interviews/candidates/${candidateId}`);
+      const response = await api.delete(`/candidates/${candidateId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting candidate:', error);
@@ -60,7 +60,7 @@ export const candidateService = {
   // Advance candidate to next stage
   async advanceStage(candidateId) {
     try {
-      const response = await api.put(`/interviews/candidates/${candidateId}/advance-stage`);
+      const response = await api.put(`/candidates/${candidateId}/advance`);
       return response.data;
     } catch (error) {
       console.error('Error advancing candidate stage:', error);
@@ -71,7 +71,7 @@ export const candidateService = {
   // Reject candidate
   async rejectCandidate(candidateId, reason) {
     try {
-      const response = await api.put(`/interviews/candidates/${candidateId}/reject`, { reason });
+      const response = await api.put(`/candidates/${candidateId}/reject`, { reason });
       return response.data;
     } catch (error) {
       console.error('Error rejecting candidate:', error);
@@ -82,7 +82,7 @@ export const candidateService = {
   // Hire candidate
   async hireCandidate(candidateId) {
     try {
-      const response = await api.put(`/interviews/candidates/${candidateId}/hire`);
+      const response = await api.put(`/candidates/${candidateId}/hire`);
       return response.data;
     } catch (error) {
       console.error('Error hiring candidate:', error);
@@ -96,10 +96,15 @@ export const interviewService = {
   // Schedule a new interview
   async scheduleInterview(interviewData) {
     try {
-      const response = await api.post('/interviews/interviews', interviewData);
-      return response.data;
+      console.log('Calling API with data:', interviewData);
+      const response = await api.post('/interviews', interviewData);
+      console.log('API response received:', response);
+      console.log('Response success field:', response?.success);
+      return response; // Return the response directly (api client already parses JSON)
     } catch (error) {
       console.error('Error scheduling interview:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response);
       throw error;
     }
   },
@@ -107,8 +112,8 @@ export const interviewService = {
   // Get all interviews with optional filtering
   async getAllInterviews(params = {}) {
     try {
-      const response = await api.get('/interviews/interviews', { params });
-      return response.data;
+      const response = await api.get('/interviews', { params });
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching interviews:', error);
       throw error;
@@ -118,8 +123,8 @@ export const interviewService = {
   // Get interview by ID
   async getInterviewById(interviewId) {
     try {
-      const response = await api.get(`/interviews/interviews/${interviewId}`);
-      return response.data;
+      const response = await api.get(`/interviews/${interviewId}`);
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching interview:', error);
       throw error;
@@ -129,8 +134,8 @@ export const interviewService = {
   // Update interview
   async updateInterview(interviewId, updateData) {
     try {
-      const response = await api.put(`/interviews/interviews/${interviewId}`, updateData);
-      return response.data;
+      const response = await api.put(`/interviews/${interviewId}`, updateData);
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error updating interview:', error);
       throw error;
@@ -140,8 +145,8 @@ export const interviewService = {
   // Reschedule interview
   async rescheduleInterview(interviewId, rescheduleData) {
     try {
-      const response = await api.put(`/interviews/interviews/${interviewId}/reschedule`, rescheduleData);
-      return response.data;
+      const response = await api.put(`/interviews/${interviewId}/reschedule`, rescheduleData);
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error rescheduling interview:', error);
       throw error;
@@ -151,8 +156,8 @@ export const interviewService = {
   // Cancel interview
   async cancelInterview(interviewId, reason) {
     try {
-      const response = await api.put(`/interviews/interviews/${interviewId}/cancel`, { reason });
-      return response.data;
+      const response = await api.put(`/interviews/${interviewId}/cancel`, { reason });
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error cancelling interview:', error);
       throw error;
@@ -162,8 +167,8 @@ export const interviewService = {
   // Add interview feedback
   async addFeedback(interviewId, feedbackData) {
     try {
-      const response = await api.post(`/interviews/interviews/${interviewId}/feedback`, feedbackData);
-      return response.data;
+      const response = await api.post(`/interviews/${interviewId}/feedback`, feedbackData);
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error adding feedback:', error);
       throw error;
@@ -173,8 +178,8 @@ export const interviewService = {
   // Get interview statistics
   async getStatistics(params = {}) {
     try {
-      const response = await api.get('/interviews/interviews/statistics', { params });
-      return response.data;
+      const response = await api.get('/interviews/statistics', { params });
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching interview statistics:', error);
       throw error;
@@ -184,10 +189,10 @@ export const interviewService = {
   // Get available interviewers for a specific date/time
   async getAvailableInterviewers(date, time, duration = 60) {
     try {
-      const response = await api.get('/interviews/interviews/available-interviewers', {
+      const response = await api.get('/interviews/available-interviewers', {
         params: { date, time, duration }
       });
-      return response.data;
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching available interviewers:', error);
       throw error;
@@ -197,10 +202,10 @@ export const interviewService = {
   // Get upcoming interviews
   async getUpcomingInterviews(days = 7) {
     try {
-      const response = await api.get('/interviews/interviews', {
+      const response = await api.get('/interviews', {
         params: { upcoming: true, limit: 50 }
       });
-      return response.data;
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching upcoming interviews:', error);
       throw error;
@@ -210,10 +215,10 @@ export const interviewService = {
   // Get interviews by status
   async getInterviewsByStatus(status, params = {}) {
     try {
-      const response = await api.get('/interviews/interviews', {
+      const response = await api.get('/interviews', {
         params: { status, ...params }
       });
-      return response.data;
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching interviews by status:', error);
       throw error;
@@ -223,10 +228,10 @@ export const interviewService = {
   // Get interviews by stage
   async getInterviewsByStage(stage, params = {}) {
     try {
-      const response = await api.get('/interviews/interviews', {
+      const response = await api.get('/interviews', {
         params: { stage, ...params }
       });
-      return response.data;
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching interviews by stage:', error);
       throw error;
@@ -236,10 +241,10 @@ export const interviewService = {
   // Get interviews for a specific interviewer
   async getInterviewsByInterviewer(interviewerId, params = {}) {
     try {
-      const response = await api.get('/interviews/interviews', {
+      const response = await api.get('/interviews', {
         params: { interviewer: interviewerId, ...params }
       });
-      return response.data;
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching interviews by interviewer:', error);
       throw error;
@@ -249,10 +254,10 @@ export const interviewService = {
   // Get interviews for a specific candidate
   async getInterviewsByCandidate(candidateId, params = {}) {
     try {
-      const response = await api.get('/interviews/interviews', {
+      const response = await api.get('/interviews', {
         params: { candidate: candidateId, ...params }
       });
-      return response.data;
+      return response; // API client already returns parsed JSON
     } catch (error) {
       console.error('Error fetching interviews by candidate:', error);
       throw error;

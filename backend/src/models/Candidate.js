@@ -168,7 +168,7 @@ candidateSchema.virtual('totalExperience').get(function() {
 
 // Method to advance interview stage
 candidateSchema.methods.advanceStage = function() {
-  const stages = ['applied', 'screening', 'technical', 'hr_round', 'portfolio_review', 'final'];
+  const stages = ['applied', 'screening', 'technical', 'hr_round', 'portfolio_review', 'final', 'selected'];
   const currentIndex = stages.indexOf(this.interviewStage);
   
   if (currentIndex >= 0 && currentIndex < stages.length - 1) {

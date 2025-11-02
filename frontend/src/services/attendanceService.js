@@ -30,6 +30,15 @@ class AttendanceService {
     }
   }
 
+  // Manual attendance entry
+  async manualAttendance(attendanceData) {
+    try {
+      return await apiClient.post('/attendance/manual', attendanceData);
+    } catch (error) {
+      throw new Error(error.message || 'Failed to record manual attendance');
+    }
+  }
+
   // Get attendance records
   async getAttendance(params = {}) {
     try {
@@ -48,6 +57,16 @@ class AttendanceService {
     } catch (error) {
       throw new Error(error.message || 'Failed to fetch today\'s attendance');
     }
+  }
+
+  // Alias for getTodayAttendance - used in frontend
+  async getTodayStatus() {
+    return this.getTodayAttendance();
+  }
+
+  // Get all attendance records (admin/HR view)
+  async getAllAttendance(params = {}) {
+    return this.getAttendance(params);
   }
 
   // Get attendance summary

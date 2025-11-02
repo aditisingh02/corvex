@@ -5,7 +5,10 @@ const {
   getCandidateById,
   createCandidate,
   updateCandidate,
-  deleteCandidate
+  deleteCandidate,
+  advanceCandidateStage,
+  rejectCandidate,
+  hireCandidate
 } = require('../controllers/interviewController');
 const { protect } = require('../middleware/auth');
 
@@ -31,6 +34,21 @@ router.post('/', createCandidate);
 // @route   PUT /api/candidates/:id
 // @access  Private
 router.put('/:id', updateCandidate);
+
+// @desc    Advance candidate stage
+// @route   PUT /api/candidates/:id/advance
+// @access  Private
+router.put('/:id/advance', advanceCandidateStage);
+
+// @desc    Reject candidate
+// @route   PUT /api/candidates/:id/reject
+// @access  Private
+router.put('/:id/reject', rejectCandidate);
+
+// @desc    Hire candidate
+// @route   PUT /api/candidates/:id/hire
+// @access  Private
+router.put('/:id/hire', hireCandidate);
 
 // @desc    Delete candidate
 // @route   DELETE /api/candidates/:id

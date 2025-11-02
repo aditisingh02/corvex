@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import candidateService from "../services/candidateService";
@@ -9,6 +9,10 @@ import departmentService from "../services/departmentService";
 
 const InterviewScheduling = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const rescheduleId = searchParams.get('reschedule');
+  const isReschedule = Boolean(rescheduleId);
+  
   const [formData, setFormData] = useState({
     candidate: "",
     interviewer: "",
@@ -25,9 +29,10 @@ const InterviewScheduling = () => {
       location: "",
       timezone: "UTC"
     },
-    notes: []
+    notes: ""
   });
 
+  const [originalInterview, setOriginalInterview] = useState(null);
   const [candidates, setCandidates] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [departments, setDepartments] = useState([]);
@@ -36,10 +41,13 @@ const InterviewScheduling = () => {
   const [error, setError] = useState("");
   const [loadingInterviewers, setLoadingInterviewers] = useState(false);
 
-  // Fetch initial data
+  // Fetch initial data and existing interview if rescheduling
   useEffect(() => {
     fetchInitialData();
-  }, []);
+    if (isReschedule && rescheduleId) {
+      fetchExistingInterview(rescheduleId);
+    }
+  }, [rescheduleId, isReschedule]);
 
   // Fetch available interviewers when date/time changes
   useEffect(() => {
@@ -69,6 +77,45 @@ const InterviewScheduling = () => {
     } catch (error) {
       console.error('Error fetching initial data:', error);
       setError('Failed to load data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchExistingInterview = async (interviewId) => {
+    try {
+      setIsLoading(true);
+      setError("");
+      console.log('Fetching existing interview for reschedule:', interviewId);
+      
+      const response = await interviewService.getInterviewById(interviewId);
+      const interview = response.data || response;
+      
+      console.log('Existing interview data:', interview);
+      setOriginalInterview(interview);
+      
+      // Pre-populate form with existing interview data
+      setFormData({
+        candidate: interview.candidate?._id || "",
+        interviewer: interview.interviewer?._id || "",
+        interviewDetails: {
+          type: interview.interviewDetails?.type || "",
+          stage: interview.interviewDetails?.stage || "",
+          position: interview.interviewDetails?.position || "",
+          department: interview.interviewDetails?.department?._id || interview.interviewDetails?.department || ""
+        },
+        scheduling: {
+          date: interview.scheduling?.date ? new Date(interview.scheduling.date).toISOString().split('T')[0] : "",
+          time: interview.scheduling?.time || "",
+          duration: interview.scheduling?.duration || 60,
+          location: interview.scheduling?.location || "",
+          timezone: interview.scheduling?.timezone || "UTC"
+        },
+        notes: interview.notes || ""
+      });
+    } catch (error) {
+      console.error('Error fetching existing interview:', error);
+      setError('Failed to load interview data for rescheduling. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -145,17 +192,51 @@ const InterviewScheduling = () => {
         return;
       }
 
-      const response = await interviewService.scheduleInterview(formData);
+      // Prepare interview data with proper formatting
+      const interviewData = {
+        ...formData,
+        notes: formData.notes && formData.notes.trim() ? [{
+          content: formData.notes.trim(),
+          isPrivate: false,
+          addedAt: new Date()
+        }] : []
+      };
+
+      console.log('Sending interview data:', interviewData);
+      console.log('Is reschedule:', isReschedule);
+
+      let response;
+      if (isReschedule && rescheduleId) {
+        // Use reschedule API for existing interviews
+        const rescheduleData = {
+          newDate: formData.scheduling.date,
+          newTime: formData.scheduling.time,
+          reason: "Interview rescheduled",
+          location: formData.scheduling.location,
+          duration: formData.scheduling.duration,
+          interviewer: formData.interviewer
+        };
+        console.log('Rescheduling with data:', rescheduleData);
+        response = await interviewService.rescheduleInterview(rescheduleId, rescheduleData);
+      } else {
+        // Use schedule API for new interviews
+        response = await interviewService.scheduleInterview(interviewData);
+      }
+      
+      console.log('Received response:', response);
+      console.log('Response success field:', response.success);
+      console.log('Response type:', typeof response);
       
       if (response.success) {
-        alert("Interview scheduled successfully!");
+        alert(isReschedule ? "Interview rescheduled successfully!" : "Interview scheduled successfully!");
         navigate("/interview-management");
       } else {
-        throw new Error(response.message || "Failed to schedule interview");
+        console.log('Response failed check, response:', response);
+        throw new Error(response.message || `Failed to ${isReschedule ? 'reschedule' : 'schedule'} interview`);
       }
     } catch (error) {
-      console.error("Error scheduling interview:", error);
-      setError(error.response?.data?.message || error.message || "Failed to schedule interview");
+      console.error(`Error ${isReschedule ? 'rescheduling' : 'scheduling'} interview:`, error);
+      setError(error.response?.data?.message || error.message || `Failed to ${isReschedule ? 'reschedule' : 'schedule'} interview`);
     } finally {
       setIsLoading(false);
     }
@@ -197,8 +278,20 @@ const InterviewScheduling = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">Schedule Interview</h1>
-                  <p className="text-gray-600 mt-2">Schedule a new interview with candidate</p>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {isReschedule ? "Reschedule Interview" : "Schedule Interview"}
+                  </h1>
+                  <p className="text-gray-600 mt-2">
+                    {isReschedule ? "Update the interview date, time, or details" : "Schedule a new interview with candidate"}
+                  </p>
+                  {isReschedule && originalInterview && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>Original Interview:</strong> {originalInterview.candidate?.personalInfo?.firstName} {originalInterview.candidate?.personalInfo?.lastName} 
+                        {' '} on {new Date(originalInterview.scheduling?.date).toLocaleDateString()} at {originalInterview.scheduling?.time}
+                      </p>
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => navigate("/interview-management")}
@@ -230,8 +323,9 @@ const InterviewScheduling = () => {
                     <select
                       value={formData.candidate}
                       onChange={(e) => handleCandidateSelect(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5E17EB]"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#5E17EB] disabled:bg-gray-100 disabled:cursor-not-allowed"
                       required
+                      disabled={isReschedule}
                     >
                       <option value="">Choose a candidate</option>
                       {candidates.map((candidate) => (
@@ -240,6 +334,11 @@ const InterviewScheduling = () => {
                         </option>
                       ))}
                     </select>
+                    {isReschedule && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Candidate cannot be changed when rescheduling an interview
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -445,9 +544,9 @@ const InterviewScheduling = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="px-6 py-2 bg-[#5E17EB] text-white rounded-lg hover:bg-[#4A0E99] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 bg-[#5E17EB] text-white rounded-lg hover:bg-[#4A0E99] transition-colors disabled:opacity-50"
                   >
-                    {isLoading ? "Scheduling..." : "Schedule Interview"}
+                    {isLoading ? (isReschedule ? "Rescheduling..." : "Scheduling...") : (isReschedule ? "Reschedule Interview" : "Schedule Interview")}
                   </button>
                 </div>
               </form>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, MessageSquare, Calendar, X, Plus } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { interviewService, interviewUtils } from "../services/interviewService";
@@ -319,24 +320,34 @@ const InterviewManagement = () => {
                               {interview.status === "completed" && (
                                 <button
                                   onClick={() => navigate(`/interview-feedback/${interview._id}`)}
-                                  className="text-[#5E17EB] hover:text-[#4A0E99]"
+                                  className="text-[#5E17EB] hover:text-[#4A0E99] p-1 rounded hover:bg-purple-50"
+                                  title="View Feedback"
                                 >
-                                  View Feedback
+                                  <Eye size={16} />
                                 </button>
                               )}
-                              {interview.status === "scheduled" && (
+                              {(interview.status === "scheduled" || interview.status === "in_progress") && (
                                 <>
+                                  <button
+                                    onClick={() => navigate(`/interview-feedback/${interview._id}`)}
+                                    className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                                    title="Add Feedback"
+                                  >
+                                    <MessageSquare size={16} />
+                                  </button>
                                   <button 
                                     onClick={() => handleRescheduleInterview(interview._id)}
-                                    className="text-blue-600 hover:text-blue-900"
+                                    className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                                    title="Reschedule Interview"
                                   >
-                                    Reschedule
+                                    <Calendar size={16} />
                                   </button>
                                   <button 
                                     onClick={() => handleCancelInterview(interview._id)}
-                                    className="text-red-600 hover:text-red-900"
+                                    className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                                    title="Cancel Interview"
                                   >
-                                    Cancel
+                                    <X size={16} />
                                   </button>
                                 </>
                               )}

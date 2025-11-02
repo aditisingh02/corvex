@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import RoleSwitcher from "../RoleSwitcher";
 import hrSystemData from "../../data/hrSystemData";
 
 const HRManagerDashboard = () => {
@@ -158,8 +157,7 @@ const HRManagerDashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900">HR Manager Dashboard</h1>
           <p className="text-gray-600 mt-2">Employee management and HR operations overview</p>
         </div>
-        <div className="flex items-center space-x-4">
-          <RoleSwitcher />
+        <div className="flex items-center">
           <div className="text-right">
             <p className="text-sm font-medium text-gray-900">Welcome back, {user?.name}</p>
             <p className="text-xs text-gray-500">HR Manager</p>

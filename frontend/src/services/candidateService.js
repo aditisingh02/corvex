@@ -116,27 +116,8 @@ const candidateService = {
   // Advance candidate to next stage
   advanceStage: async (id) => {
     try {
-      // For now, we'll update the candidate stage manually
-      // This could be enhanced to have a dedicated endpoint later
-      const candidate = await candidateService.getCandidateById(id);
-      const currentStage = candidate.data.interviewStage;
-      
-      const stageProgression = {
-        'applied': 'screening',
-        'screening': 'technical',
-        'technical': 'hr_round',
-        'hr_round': 'portfolio_review',
-        'portfolio_review': 'final',
-        'final': 'selected'
-      };
-      
-      const nextStage = stageProgression[currentStage];
-      if (nextStage) {
-        const updateData = { interviewStage: nextStage };
-        return await candidateService.updateCandidate(id, updateData);
-      } else {
-        throw new Error('Cannot advance stage further');
-      }
+      const response = await api.put(`/candidates/${id}/advance`);
+      return response.data;
     } catch (error) {
       console.error('Error advancing candidate stage:', error);
       throw new Error(error.response?.data?.message || 'Failed to advance candidate stage');
@@ -341,7 +322,9 @@ export const candidateUtils = {
         content: formData.notes,
         addedAt: new Date()
       }] : [],
-      totalExperience: formData.totalExperience || 0
+      totalExperience: formData.totalExperience || 0,
+      interviewStage: formData.interviewStage || 'applied',
+      status: formData.status || 'active'
     };
   },
 
@@ -375,7 +358,9 @@ export const candidateUtils = {
         portfolio: '',
         otherAttachments: [],
         notes: '',
-        totalExperience: 0
+        totalExperience: 0,
+        interviewStage: 'applied',
+        status: 'active'
       };
     }
     
@@ -388,7 +373,9 @@ export const candidateUtils = {
       dateOfBirth: apiData.personalInfo?.dateOfBirth || '',
       nationality: apiData.personalInfo?.nationality || '',
       position: apiData.applicationInfo?.position || '',
-      department: apiData.applicationInfo?.department || '',
+      department: typeof apiData.applicationInfo?.department === 'object' 
+        ? apiData.applicationInfo.department._id 
+        : apiData.applicationInfo?.department || '',
       appliedDate: apiData.applicationInfo?.appliedDate || '',
       source: apiData.applicationInfo?.source || '',
       referredBy: apiData.applicationInfo?.referredBy || '',
@@ -405,7 +392,9 @@ export const candidateUtils = {
       portfolio: apiData.attachments?.portfolio || '',
       otherAttachments: apiData.attachments?.others || [],
       notes: apiData.notes?.[0]?.content || '',
-      totalExperience: apiData.totalExperience || 0
+      totalExperience: apiData.totalExperience || 0,
+      interviewStage: apiData.interviewStage || 'applied',
+      status: apiData.status || 'active'
     };
   }
 };
