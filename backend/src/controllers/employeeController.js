@@ -167,10 +167,13 @@ const createEmployee = async (req, res, next) => {
     // Handle specific MongoDB validation errors
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map(val => val.message);
+      console.log('Validation errors:', errors);
+      console.log('Full error details:', error.errors);
       return res.status(400).json({
         success: false,
         message: 'Validation Error',
-        errors: errors
+        errors: errors,
+        details: error.errors // Include detailed validation info
       });
     }
     

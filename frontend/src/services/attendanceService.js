@@ -7,7 +7,7 @@ class AttendanceService {
       const data = { location, method };
       return await apiClient.post('/attendance/clock-in', data);
     } catch (error) {
-      throw new Error(error.message || 'Failed to clock in');
+      throw new Error(error.response?.data?.message || error.message || 'Failed to clock in');
     }
   }
 
@@ -17,7 +17,7 @@ class AttendanceService {
       const data = { location, method };
       return await apiClient.post('/attendance/clock-out', data);
     } catch (error) {
-      throw new Error(error.message || 'Failed to clock out');
+      throw new Error(error.response?.data?.message || error.message || 'Failed to clock out');
     }
   }
 

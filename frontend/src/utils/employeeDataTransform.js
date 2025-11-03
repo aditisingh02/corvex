@@ -39,8 +39,8 @@ export const transformFormDataToEmployee = (formData) => {
     jobInfo: {
       department: formData.department,
       position: formData.designation,
-      level: formData.level || 'junior',
-      manager: formData.manager || null,
+      level: (formData.level || 'junior').toLowerCase(), // Ensure lowercase for enum validation
+      manager: formData.manager && formData.manager !== 'none' && formData.manager !== '' ? formData.manager : null, // Convert "none" to null
       hireDate: formData.joiningDate,
       probationEndDate: formData.probationEndDate || null,
       employmentType: formData.employmentType,

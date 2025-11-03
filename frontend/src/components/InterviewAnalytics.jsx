@@ -113,7 +113,7 @@ const InterviewAnalytics = () => {
               />
               <MetricCard
                 title="Average Score"
-                value={`${analyticsData.averageScore}/10`}
+                value={`${analyticsData.averageScore}/5`}
                 subValue="Interview rating"
                 icon={
                   <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -63,11 +63,26 @@ class ApiClient {
       if (!response.ok) {
         console.log('Response not OK. Status:', response.status);
         console.log('Response data:', data);
+        
+        // Log detailed validation errors if available
+        if (data.errors) {
+          console.log('Validation errors:', data.errors);
+        }
+        if (data.details) {
+          console.log('Error details:', data.details);
+        }
+        
         const errorMessage = data.message || `HTTP error! status: ${response.status} - ${response.statusText}`;
         console.error(`API Error [${response.status}]:`, errorMessage);
         console.error('Request URL:', url);
         console.error('Request config:', config);
-        throw new Error(errorMessage);
+        
+        // Create a more detailed error object
+        const error = new Error(errorMessage);
+        error.status = response.status;
+        error.errors = data.errors;
+        error.details = data.details;
+        throw error;
       }
 
       return data;

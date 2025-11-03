@@ -51,7 +51,7 @@ export const employeeService = {
   async createEmployee(employeeData) {
     try {
       // Log the data being sent for debugging
-      console.log('Creating employee with data:', employeeData);
+      console.log('Creating employee with data:', JSON.stringify(employeeData, null, 2));
       
       const response = await apiClient.post(API_ENDPOINTS.EMPLOYEES.BASE, employeeData);
       
@@ -62,11 +62,15 @@ export const employeeService = {
       };
     } catch (error) {
       console.error('Employee service - createEmployee error:', error);
+      console.error('Error details:', error.details);
+      console.error('Error errors:', error.errors);
       
       // Extract more specific error messages from the backend
       let errorMessage = 'Failed to create employee';
       
-      if (error.message) {
+      if (error.errors && Array.isArray(error.errors)) {
+        errorMessage = `Validation failed: ${error.errors.join(', ')}`;
+      } else if (error.message) {
         // Handle specific duplicate field errors
         if (error.message.includes('Duplicate field value entered') || error.message.includes('duplicate key error')) {
           if (error.message.includes('email')) {

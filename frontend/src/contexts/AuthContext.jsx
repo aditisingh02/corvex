@@ -14,6 +14,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState(null);
@@ -30,6 +31,7 @@ export const AuthProvider = ({ children }) => {
           const response = await authService.getCurrentUser();
           if (response.success) {
             setUser(response.user);
+            setEmployee(response.employee);
             setIsAuthenticated(true);
           } else {
             // Token is invalid, clear it
@@ -57,9 +59,19 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login({ email, password });
       
       if (response.success) {
-        setUser(response.user);
-        setIsAuthenticated(true);
-        return { success: true, user: response.user };
+        // After successful login, fetch complete user profile
+        const profileResponse = await authService.getCurrentUser();
+        if (profileResponse.success) {
+          setUser(profileResponse.user);
+          setEmployee(profileResponse.employee);
+          setIsAuthenticated(true);
+          return { success: true, user: profileResponse.user, employee: profileResponse.employee };
+        } else {
+          // Fallback to basic user info if profile fetch fails
+          setUser(response.user);
+          setIsAuthenticated(true);
+          return { success: true, user: response.user };
+        }
       } else {
         throw new Error(response.message || 'Login failed');
       }
@@ -81,6 +93,7 @@ export const AuthProvider = ({ children }) => {
       
       // Reset state
       setUser(null);
+      setEmployee(null);
       setIsAuthenticated(false);
       setError(null);
       
@@ -89,6 +102,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout error:', error);
       // Even if backend logout fails, clear local state
       setUser(null);
+      setEmployee(null);
       setIsAuthenticated(false);
       setError(null);
       return { success: false, error: error.message };
@@ -105,9 +119,19 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.register(userData);
       
       if (response.success) {
-        setUser(response.user);
-        setIsAuthenticated(true);
-        return { success: true, user: response.user };
+        // After successful registration, fetch complete user profile
+        const profileResponse = await authService.getCurrentUser();
+        if (profileResponse.success) {
+          setUser(profileResponse.user);
+          setEmployee(profileResponse.employee);
+          setIsAuthenticated(true);
+          return { success: true, user: profileResponse.user, employee: profileResponse.employee };
+        } else {
+          // Fallback to basic user info if profile fetch fails
+          setUser(response.user);
+          setIsAuthenticated(true);
+          return { success: true, user: response.user };
+        }
       } else {
         throw new Error(response.message || 'Registration failed');
       }
@@ -161,6 +185,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    employee,
     loading,
     isAuthenticated,
     error,

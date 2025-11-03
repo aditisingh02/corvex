@@ -1,112 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import hrSystemData from "../../data/hrSystemData";
+import { useDashboardData } from "../../hooks/useDashboardData.jsx";
 
 const HRManagerDashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, employee } = useAuth();
+  const { loading, error, getHRStats, getRecentActivities } = useDashboardData();
   const [currentDate] = useState(new Date());
 
-  // HR Manager specific stats
-  const hrStats = [
-    {
-      title: "Total Employees",
-      value: hrSystemData.hrMetrics.workforce.totalEmployees,
-      change: "+8.1%",
-      isPositive: true,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-      )
-    },
-    {
-      title: "Open Positions",
-      value: "23",
-      change: "+12.5%",
-      isPositive: true,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0h-8m8 0a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2h8z" />
-        </svg>
-      )
-    },
-    {
-      title: "Pending Leaves",
-      value: "15",
-      change: "-3.2%",
-      isPositive: false,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      )
-    },
-    {
-      title: "Avg. Performance",
-      value: `${hrSystemData.hrMetrics.performance.averageRating}/5.0`,
-      change: "+0.3",
-      isPositive: true,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-        </svg>
-      )
-    }
-  ];
+  // Get real HR stats from the hook
+  const hrStats = getHRStats();
 
-  // Recent HR activities
-  const hrActivities = [
-    {
-      id: 1,
-      action: "New employee started",
-      employee: "Sarah Johnson - Marketing",
-      time: "2 hours ago",
-      type: "hiring",
-      icon: "🎉"
-    },
-    {
-      id: 2,
-      action: "Performance review completed",
-      employee: "Michael Chen - Engineering",
-      time: "4 hours ago",
-      type: "performance",
-      icon: "📊"
-    },
-    {
-      id: 3,
-      action: "Leave request approved",
-      employee: "Emma Davis - Sales",
-      time: "6 hours ago",
-      type: "leave",
-      icon: "✅"
-    },
-    {
-      id: 4,
-      action: "Interview scheduled",
-      employee: "Candidate: Alex Thompson",
-      time: "1 day ago",
-      type: "interview",
-      icon: "📅"
-    },
-    {
-      id: 5,
-      action: "Training session completed",
-      employee: "Team: Frontend Development",
-      time: "2 days ago",
-      type: "training",
-      icon: "🎓"
-    }
-  ];
+  // Get real recent activities
+  const hrActivities = getRecentActivities();
 
   // HR Quick Actions
   const hrQuickActions = [
@@ -140,17 +47,38 @@ const HRManagerDashboard = () => {
     }
   ];
 
-  // Recruitment pipeline
-  const recruitmentPipeline = [
-    { stage: "Applied", count: 45, color: "bg-gray-400" },
-    { stage: "Screening", count: 23, color: "bg-blue-400" },
-    { stage: "Interview", count: 12, color: "bg-yellow-400" },
-    { stage: "Offer", count: 5, color: "bg-green-400" },
-    { stage: "Hired", count: 3, color: "bg-purple-400" }
-  ];
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600"></div>
+          <p className="ml-4 text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-800">
+                Error loading dashboard data: {error}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
@@ -159,8 +87,12 @@ const HRManagerDashboard = () => {
         </div>
         <div className="flex items-center">
           <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">Welcome back, {user?.name}</p>
-            <p className="text-xs text-gray-500">HR Manager</p>
+            <p className="text-sm font-medium text-gray-900">
+              Welcome back, {employee?.personalInfo?.firstName || user?.email?.split('@')[0] || 'HR Manager'}
+            </p>
+            <p className="text-xs text-gray-500">
+              {employee?.jobInfo?.position || 'HR Manager'}
+            </p>
           </div>
         </div>
       </div>
@@ -203,33 +135,10 @@ const HRManagerDashboard = () => {
                     activity.type === 'performance' ? 'bg-blue-100 text-blue-800' :
                     activity.type === 'leave' ? 'bg-orange-100 text-orange-800' :
                     activity.type === 'interview' ? 'bg-purple-100 text-purple-800' :
+                    activity.type === 'employee' ? 'bg-blue-100 text-blue-800' :
                     'bg-gray-100 text-gray-800'
                   }`}>
                     {activity.type}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recruitment Pipeline */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recruitment Pipeline</h3>
-            <div className="space-y-4">
-              {recruitmentPipeline.map((stage, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${stage.color}`}></div>
-                    <span className="text-sm font-medium text-gray-700">{stage.stage}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-gray-900">{stage.count}</span>
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full ${stage.color}`}
-                        style={{ width: `${(stage.count / 45) * 100}%` }}
-                      ></div>
-                    </div>
                   </div>
                 </div>
               ))}
@@ -270,21 +179,21 @@ const HRManagerDashboard = () => {
               <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-red-900">Review Leave Requests</p>
-                  <p className="text-xs text-red-600">15 pending approvals</p>
+                  <p className="text-xs text-red-600">Check pending approvals</p>
                 </div>
                 <div className="w-2 h-2 bg-red-500 rounded-full"></div>
               </div>
               <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-yellow-900">Complete Reviews</p>
-                  <p className="text-xs text-yellow-600">8 performance reviews</p>
+                  <p className="text-xs text-yellow-600">Performance evaluations</p>
                 </div>
                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
               </div>
               <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                 <div>
                   <p className="text-sm font-medium text-blue-900">Schedule Interviews</p>
-                  <p className="text-xs text-blue-600">5 candidates waiting</p>
+                  <p className="text-xs text-blue-600">Upcoming candidate meetings</p>
                 </div>
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
               </div>

@@ -313,7 +313,7 @@ const InterviewManagement = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {interview.feedback?.overallRating ? `${interview.feedback.overallRating}/10` : "-"}
+                            {interview.feedback?.overallRating ? `${interview.feedback.overallRating}/5` : "-"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-2">
