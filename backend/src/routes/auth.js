@@ -14,6 +14,15 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Debug route to test if auth router is working
+router.get('/debug', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Auth router is working!',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Validation rules
 const registerValidation = [
   body('email')

@@ -133,10 +133,28 @@ app.get('/api/debug/auth-test', (req, res) => {
   });
 });
 
-// Mount API Routes with explicit logging
+// Temporary direct auth login route for testing
+app.post('/api/auth/login-direct', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Direct auth login route working!',
+    body: req.body,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Mount API Routes with explicit logging and error handling
 console.log('Mounting API routes...');
-app.use('/api/auth', authRoutes);
-console.log('Auth routes mounted on /api/auth');
+
+try {
+  console.log('authRoutes type:', typeof authRoutes);
+  console.log('authRoutes:', authRoutes);
+  app.use('/api/auth', authRoutes);
+  console.log('Auth routes mounted on /api/auth successfully');
+} catch (error) {
+  console.error('Error mounting auth routes:', error);
+}
+
 app.use('/api/employees', employeeRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/attendance', attendanceRoutes);
