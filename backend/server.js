@@ -90,6 +90,8 @@ app.get('/api/health', (req, res) => {
 // Debug route to list available routes
 app.get('/api/debug/routes', (req, res) => {
   const routes = [];
+  const routeInfo = [];
+  
   app._router.stack.forEach((middleware) => {
     if (middleware.route) {
       routes.push({
@@ -97,11 +99,18 @@ app.get('/api/debug/routes', (req, res) => {
         methods: Object.keys(middleware.route.methods)
       });
     } else if (middleware.name === 'router') {
+      const basePath = middleware.regexp.source
+        .replace('^\\/api\\/([^\\/]+)(?:\\/(?=.*?))?', '/api/$1')
+        .replace(/\\\//g, '/')
+        .replace(/\?\$/, '')
+        .replace(/\^/, '');
+      
       middleware.handle.stack.forEach((handler) => {
         if (handler.route) {
           routes.push({
             path: handler.route.path,
-            methods: Object.keys(handler.route.methods)
+            methods: Object.keys(handler.route.methods),
+            mountPath: basePath
           });
         }
       });
@@ -115,8 +124,19 @@ app.get('/api/debug/routes', (req, res) => {
   });
 });
 
-// API Routes
+// Test route specifically for auth
+app.get('/api/debug/auth-test', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Auth route mounting test successful',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Mount API Routes with explicit logging
+console.log('Mounting API routes...');
 app.use('/api/auth', authRoutes);
+console.log('Auth routes mounted on /api/auth');
 app.use('/api/employees', employeeRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/attendance', attendanceRoutes);
@@ -127,6 +147,7 @@ app.use('/api/training', trainingRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/interviews', interviewRoutes);
 app.use('/api/candidates', candidateRoutes);
+console.log('All API routes mounted successfully');
 
 // 404 handler for undefined routes
 app.use('*', (req, res) => {
