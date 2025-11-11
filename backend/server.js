@@ -47,7 +47,10 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://corvex-delta.vercel.app'
+  ],
   credentials: true,
 }));
 
@@ -62,6 +65,17 @@ if (process.env.NODE_ENV === 'development') {
 
 // Static file serving
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+// Add a root route for health check
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Corvex HR System API is running',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV
+  });
+});
 
 // Health check route
 app.get('/api/health', (req, res) => {

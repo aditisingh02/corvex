@@ -1,5 +1,8 @@
 // API Configuration for Corvex HR System
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5002/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'production' 
+    ? 'https://corvex-u89k.onrender.com/api' 
+    : 'http://localhost:5002/api');
 
 // API Client class for making HTTP requests
 class ApiClient {
