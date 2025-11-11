@@ -23,6 +23,16 @@ router.get('/debug', (req, res) => {
   });
 });
 
+// Simple test login route without validation
+router.post('/test-login', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Test login route working!',
+    body: req.body,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Validation rules
 const registerValidation = [
   body('email')
@@ -83,6 +93,17 @@ const resetPasswordValidation = [
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
 ];
+
+// Simple login route without controller for testing
+router.post('/simple-login', (req, res) => {
+  const { email, password } = req.body;
+  res.status(200).json({
+    success: true,
+    message: 'Simple login route working',
+    email: email,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Public routes
 router.post('/register', registerValidation, register);

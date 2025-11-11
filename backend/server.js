@@ -133,16 +133,6 @@ app.get('/api/debug/auth-test', (req, res) => {
   });
 });
 
-// Temporary direct auth login route for testing
-app.post('/api/auth/login-direct', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Direct auth login route working!',
-    body: req.body,
-    timestamp: new Date().toISOString()
-  });
-});
-
 // Mount API Routes with explicit logging and error handling
 console.log('Mounting API routes...');
 
